@@ -346,8 +346,7 @@ describe("TWrapper", () => {
     // - JSX Attribute
     expect(output).toContain('placeholder={t("잠시만요")}');
     // - JSX Text
-    expect(output).toContain('{t("안녕하세요")}');
+    expect(output).toContain('{t("반갑습니다.")}');
 
-    // 각 상황이 정상적으로 감싸졌는지 검사하여 wrap 로직이 제대로 동작하는지 확인합니다.
   });
 });
