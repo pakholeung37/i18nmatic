@@ -18,3 +18,20 @@ export function has<T>(
 
   return found;
 }
+
+type Language = "ko";
+
+export function createLanguageCheckFunction(language: Language) {
+  switch (language) {
+    case "ko":
+      return containsKorean;
+    default:
+      return () => false;
+  }
+}
+
+function containsKorean(text: string): boolean {
+  // [가-힣] 범위의 한글 문자를 찾는 정규식
+  const koreanRegex = /[가-힣]/;
+  return koreanRegex.test(text);
+}

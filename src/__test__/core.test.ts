@@ -1,9 +1,9 @@
 import * as parser from "@babel/parser";
 import traverse, { NodePath } from "@babel/traverse";
-import * as t from "@babel/types";
-import { has } from "../common";
+import { createLanguageCheckFunction, has } from "../common";
 import * as demoCode from "./demo";
 import * as core from "../core";
+import generate from "@babel/generator";
 
 describe("isFunctionalComponent", () => {
   const testCases = [
@@ -119,5 +119,41 @@ describe("findHookContextNode", () => {
 
     const hookContextNodes = core.findHookContextNode(ast);
     expect(hookContextNodes).toHaveLength(6);
+  });
+});
+
+describe("TWrapper", () => {
+  it("should wrap string literal containing Korean with t()", () => {
+    const code = `
+      const Component = () => {
+        const greeting = "안녕하세요";
+        return <div>{greeting}</div>;
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+    // HookContextNode 후보로 ArrowFunctionExpression 하나를 찾음
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // Wrapper 인스턴스를 생성하여 wrapping 실행
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("ko")
+    );
+    wrapper.wrapStringLiteral();
+
+    // 전체 AST를 코드 문자열로 변환하여 t() 호출이 있는지 확인
+    const output = generate(ast, {
+      retainLines: true,
+      concise: true,
+      jsescOption: {
+        minimal: true,
+      },
+    }).code;
+
+    expect(output).toContain('t("안녕하세요")');
   });
 });

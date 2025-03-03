@@ -2,25 +2,40 @@ import traverse, { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
 import { has } from "./common";
 
-export function transform(ast: t.Node) {}
+export function transform(
+  ast: t.Node,
+  checkLanguage: (text: string) => boolean
+) {
+  const hookContextNodes = findHookContextNode(ast);
 
-export function findHookContextNode(node: t.Node) {
-  const hookContextNodes: t.Function[] = [];
+  const wrapper = new TWrapper(hookContextNodes, checkLanguage);
+  // 변환
+}
+
+type PreHookContextNode =
+  | t.FunctionDeclaration
+  | t.FunctionExpression
+  | t.ArrowFunctionExpression;
+
+type HookContextNode = PreHookContextNode;
+
+export function findHookContextNode(node: t.Node): NodePath<HookContextNode>[] {
+  const hookContextNodes: NodePath<HookContextNode>[] = [];
 
   traverse(node, {
     FunctionDeclaration(path) {
       if (isHookContextNode(path)) {
-        hookContextNodes.push(path.node);
+        hookContextNodes.push(path);
       }
     },
     ArrowFunctionExpression(path) {
       if (isHookContextNode(path)) {
-        hookContextNodes.push(path.node);
+        hookContextNodes.push(path);
       }
     },
     FunctionExpression(path) {
       if (isHookContextNode(path)) {
-        hookContextNodes.push(path.node);
+        hookContextNodes.push(path);
       }
     },
   });
@@ -28,11 +43,15 @@ export function findHookContextNode(node: t.Node) {
   return hookContextNodes;
 }
 
-export function isHookContextNode(path: NodePath<t.Function>) {
+export function isHookContextNode(
+  path: NodePath<PreHookContextNode>
+): path is NodePath<HookContextNode> {
   return isFunctionalComponent(path) || isHook(path);
 }
 
-export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
+export function isFunctionalComponent(
+  path: NodePath<PreHookContextNode>
+): boolean {
   const functionName = getFunctionName(path);
 
   // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)
@@ -49,7 +68,7 @@ export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
   return has(path, (node) => t.isJSXElement(node) || t.isJSXFragment(node));
 }
 
-export function isHook(path: NodePath<t.Function>): boolean {
+export function isHook(path: NodePath<PreHookContextNode>): boolean {
   const functionName = getFunctionName(path);
 
   if (!functionName) {
@@ -59,7 +78,7 @@ export function isHook(path: NodePath<t.Function>): boolean {
   return /^use[A-Z0-9]/.test(functionName);
 }
 
-function getFunctionName(path: NodePath<t.Function>) {
+function getFunctionName(path: NodePath<PreHookContextNode>) {
   let functionName: string | undefined;
 
   // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)
@@ -79,4 +98,38 @@ function getFunctionName(path: NodePath<t.Function>) {
   }
 
   return functionName;
+}
+
+export class TWrapper {
+  constructor(
+    private readonly paths: NodePath<HookContextNode>[],
+    private readonly checkLanguage: (text: string) => boolean
+  ) {}
+
+  /**
+   * 각 HookContextNode 내의 모든 StringLiteral 노드를 순회하여,
+   * checkLanguage(text)가 true인 경우 t() 호출로 래핑한다.
+   */
+  wrapStringLiteral(): void {
+    this.paths.forEach((path) => {
+      path.traverse({
+        StringLiteral: (path: NodePath<t.StringLiteral>) => {
+          if (
+            t.isCallExpression(path.parent) &&
+            t.isIdentifier(path.parent.callee) &&
+            path.parent.callee.name === "t"
+          ) {
+            return;
+          }
+
+          if (this.checkLanguage(path.node.value)) {
+            const newCallExpr = t.callExpression(t.identifier("t"), [
+              t.stringLiteral(path.node.value),
+            ]);
+            path.replaceWith(newCallExpr);
+          }
+        },
+      });
+    });
+  }
 }
