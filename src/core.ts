@@ -2,14 +2,12 @@ import traverse, { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
 import { has } from "./common";
 
-export function findHookContextNode(path: NodePath) {
-  // useTranslation hook을 호출할 수 있는 node를 찾아 반환
-  // functionLike
-  // hook 또는 react 컴포넌트
+export function transform(ast: t.Node) {}
 
+export function findHookContextNode(node: t.Node) {
   const hookContextNodes: t.Function[] = [];
 
-  path.traverse({
+  traverse(node, {
     FunctionDeclaration(path) {
       if (isHookContextNode(path)) {
         hookContextNodes.push(path.node);
@@ -26,6 +24,8 @@ export function findHookContextNode(path: NodePath) {
       }
     },
   });
+
+  return hookContextNodes;
 }
 
 export function isHookContextNode(path: NodePath<t.Function>) {

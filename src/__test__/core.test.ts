@@ -95,3 +95,25 @@ describe("isHookContextNode", () => {
     });
   });
 });
+
+describe("findHookContextNode", () => {
+  it("should find all hook context nodes", () => {
+    const ast = parser.parse(
+      `
+            ${demoCode.componentDeclaration}
+            ${demoCode.componentExpression}
+            ${demoCode.componentArrow}
+            ${demoCode.hookDeclaration}
+            ${demoCode.hookExpression}
+            ${demoCode.hookArrow}
+        `,
+      {
+        sourceType: "module",
+        plugins: ["jsx"],
+      }
+    );
+
+    const hookContextNodes = core.findHookContextNode(ast);
+    expect(hookContextNodes).toHaveLength(6);
+  });
+});

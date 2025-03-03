@@ -1,10 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as parser from "@babel/parser";
+import * as t from "@babel/types";
 
 const fileName = "./src/source/components.tsx";
 
-export function load() {
+export function load(): t.Node {
   console.log("Current working directory: ", process.cwd());
   const code = fs.readFileSync(
     path.resolve(process.cwd(), "src/source/component.tsx"),
