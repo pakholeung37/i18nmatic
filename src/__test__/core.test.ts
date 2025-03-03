@@ -65,3 +65,33 @@ describe("isHook", () => {
     });
   });
 });
+
+describe("isHookContextNode", () => {
+  const testCases = [
+    { code: demoCode.componentDeclaration, expected: true },
+    { code: demoCode.componentExpression, expected: true },
+    { code: demoCode.componentArrow, expected: true },
+    { code: demoCode.hookDeclaration, expected: true },
+    { code: demoCode.hookExpression, expected: true },
+    { code: demoCode.hookArrow, expected: true },
+  ];
+  testCases.forEach(({ code, expected }, index) => {
+    it(`should return ${expected} for test case ${index + 1}`, () => {
+      const ast = parser.parse(code, {
+        sourceType: "module",
+        plugins: ["jsx"],
+      });
+      traverse(ast, {
+        FunctionDeclaration(path) {
+          expect(core.isHookContextNode(path)).toBe(expected);
+        },
+        FunctionExpression(path) {
+          expect(core.isHookContextNode(path)).toBe(expected);
+        },
+        ArrowFunctionExpression(path) {
+          expect(core.isHookContextNode(path)).toBe(expected);
+        },
+      });
+    });
+  });
+});

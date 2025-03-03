@@ -11,21 +11,25 @@ export function findHookContextNode(path: NodePath) {
 
   path.traverse({
     FunctionDeclaration(path) {
-      if (isFunctionalComponent(path)) {
+      if (isHookContextNode(path)) {
         hookContextNodes.push(path.node);
       }
     },
     ArrowFunctionExpression(path) {
-      if (isFunctionalComponent(path)) {
+      if (isHookContextNode(path)) {
         hookContextNodes.push(path.node);
       }
     },
     FunctionExpression(path) {
-      if (isFunctionalComponent(path)) {
+      if (isHookContextNode(path)) {
         hookContextNodes.push(path.node);
       }
     },
   });
+}
+
+export function isHookContextNode(path: NodePath<t.Function>) {
+  return isFunctionalComponent(path) || isHook(path);
 }
 
 export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
