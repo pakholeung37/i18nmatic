@@ -107,6 +107,12 @@ export class TWrapper {
     private readonly checkLanguage: (text: string) => boolean
   ) {}
 
+  wrap() {
+    this.wrapStringLiteral();
+    this.wrapJSXText();
+    this.wrapTemplateLiteral();
+  }
+
   /**
    * 각 HookContextNode 내의 모든 StringLiteral 노드를 순회하여,
    * checkLanguage(text)가 true인 경우 t() 호출로 래핑한다.
@@ -228,5 +234,20 @@ export class TWrapper {
       }
     }
     return false;
+  }
+}
+
+class Insertion {
+  constructor(private readonly path: NodePath<HookContextNode>) {}
+
+  formatWithBlockStatement() {
+    // 훅을 주입할 수 있게, blockStatement로 감싸기
+  }
+
+  insertUseTranslationHook() {
+    // blockStatement로 감싸기
+    // 최상위 함수인지 판단
+    // t가 있는지(래핑이 되었는지 판단)
+    // 주입
   }
 }

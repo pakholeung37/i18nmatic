@@ -50,3 +50,28 @@ function helperFunction() {
   return 42;
 }
 `;
+
+export const allCasesDemo = `
+  const user = { name: "Lee" };
+  const isKorean = true;
+  
+  function AllCases() {
+    // 일반 문자열 리터럴
+    const greeting = "안녕하세요";
+    
+    // 템플릿 리터럴
+    const template = \`안녕, \${user.name}!\`;
+    
+    // 삼항 연산자
+    const message = isKorean ? "안녕" : "Hello";
+    
+    // JSX 리턴, JSX Attribute, JSX Text 모두 포함
+    return (
+      <div placeholder="잠시만요">
+        안녕하세요
+        {template}
+        {message}
+      </div>
+    );
+  }
+`;
