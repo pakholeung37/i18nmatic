@@ -68,7 +68,7 @@ export const allCasesDemo = `
     // JSX 리턴, JSX Attribute, JSX Text 모두 포함
     return (
       <div placeholder="잠시만요">
-        안녕하세요
+        반갑습니다.
         {template}
         {message}
       </div>
