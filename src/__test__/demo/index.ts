@@ -43,3 +43,10 @@ const MyComponent3 = () => {
   return <div>Hello, world!</div>;
 };
 `;
+
+// 7. 그냥 함수
+export const helperFunction = `
+function helperFunction() {
+  return 42;
+}
+`;

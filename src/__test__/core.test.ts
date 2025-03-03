@@ -13,6 +13,7 @@ describe("isFunctionalComponent", () => {
     { code: demoCode.hookDeclaration, expected: false },
     { code: demoCode.hookExpression, expected: false },
     { code: demoCode.hookArrow, expected: false },
+    { code: demoCode.helperFunction, expected: false },
   ];
 
   testCases.forEach(({ code, expected }, index) => {
@@ -44,6 +45,7 @@ describe("isHook", () => {
     { code: demoCode.hookDeclaration, expected: true },
     { code: demoCode.hookExpression, expected: true },
     { code: demoCode.hookArrow, expected: true },
+    { code: demoCode.helperFunction, expected: false },
   ];
   testCases.forEach(({ code, expected }, index) => {
     it(`should return ${expected} for test case ${index + 1}`, () => {
@@ -74,6 +76,7 @@ describe("isHookContextNode", () => {
     { code: demoCode.hookDeclaration, expected: true },
     { code: demoCode.hookExpression, expected: true },
     { code: demoCode.hookArrow, expected: true },
+    { code: demoCode.helperFunction, expected: false },
   ];
   testCases.forEach(({ code, expected }, index) => {
     it(`should return ${expected} for test case ${index + 1}`, () => {
@@ -106,6 +109,7 @@ describe("findHookContextNode", () => {
             ${demoCode.hookDeclaration}
             ${demoCode.hookExpression}
             ${demoCode.hookArrow}
+            ${demoCode.helperFunction}
         `,
       {
         sourceType: "module",
