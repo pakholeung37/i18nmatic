@@ -347,5 +347,6 @@ describe("TWrapper", () => {
     expect(output).toContain('placeholder={t("잠시만요")}');
     // - JSX Text
     expect(output).toContain('{t("반갑습니다.")}');
+
   });
 });
