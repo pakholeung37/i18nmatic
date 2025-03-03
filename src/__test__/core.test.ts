@@ -313,4 +313,41 @@ describe("TWrapper", () => {
     expect(output).toContain('"user.name": user.name');
     expect(output).toContain('"time": time');
   });
+
+  it("should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()", () => {
+    // 1. AST 파싱
+    const ast = parser.parse(demoCode.allCasesDemo, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      // 간단히 한글 유무만 확인하도록 구현
+      createLanguageCheckFunction("ko")
+    );
+    wrapper.wrap(); // wrap()은 StringLiteral, JSXText, TemplateLiteral 등을 모두 처리
+
+    // 4. 변환 결과 확인
+    const output = generate(ast, { jsescOption: { minimal: true } }).code;
+
+    // 5. 모든 사례가 t()로 변환되었는지 검사
+    // - 일반 문자열 리터럴
+    expect(output).toContain('t("안녕하세요")');
+    // - 템플릿 리터럴
+    expect(output).toContain('t("안녕, {{user.name}}!", ');
+    expect(output).toContain('"user.name": user.name');
+    // - 삼항 연산자
+    expect(output).toContain('isKorean ? t("안녕") : "Hello"');
+    // - JSX Attribute
+    expect(output).toContain('placeholder={t("잠시만요")}');
+    // - JSX Text
+    expect(output).toContain('{t("안녕하세요")}');
+
+    // 각 상황이 정상적으로 감싸졌는지 검사하여 wrap 로직이 제대로 동작하는지 확인합니다.
+  });
 });
