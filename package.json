@@ -1,18 +1,25 @@
 {
   "name": "auto-transform-i18n",
-  "version": "1.0.0",
-  "description": "hi",
-  "main": "index.js",
+  "version": "0.1.1",
+  "description": "A TypeScript library for parsing and traversing Babel AST",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git@github-personal:seonghunYang/auto-transform-i18n.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "babel",
+    "ast",
+    "traverse",
+    "typescript"
+  ],
+  "author": "seonghunYang",
+  "license": "MIT",
   "dependencies": {
     "@babel/parser": "^7.26.9",
     "@babel/traverse": "^7.26.9",
