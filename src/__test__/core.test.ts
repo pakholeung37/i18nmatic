@@ -35,3 +35,33 @@ describe("isFunctionalComponent", () => {
     });
   });
 });
+
+describe("isHook", () => {
+  const testCases = [
+    { code: demoCode.componentDeclaration, expected: false },
+    { code: demoCode.componentExpression, expected: false },
+    { code: demoCode.componentArrow, expected: false },
+    { code: demoCode.hookDeclaration, expected: true },
+    { code: demoCode.hookExpression, expected: true },
+    { code: demoCode.hookArrow, expected: true },
+  ];
+  testCases.forEach(({ code, expected }, index) => {
+    it(`should return ${expected} for test case ${index + 1}`, () => {
+      const ast = parser.parse(code, {
+        sourceType: "module",
+        plugins: ["jsx"],
+      });
+      traverse(ast, {
+        FunctionDeclaration(path) {
+          expect(core.isHook(path)).toBe(expected);
+        },
+        FunctionExpression(path) {
+          expect(core.isHook(path)).toBe(expected);
+        },
+        ArrowFunctionExpression(path) {
+          expect(core.isHook(path)).toBe(expected);
+        },
+      });
+    });
+  });
+});

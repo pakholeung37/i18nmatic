@@ -29,6 +29,33 @@ export function findHookContextNode(path: NodePath) {
 }
 
 export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
+  const functionName = getFunctionName(path);
+
+  // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)
+
+  if (!functionName) {
+    return false;
+  }
+
+  // 대문자로 시작하는지 간단 체크
+  if (!/^[A-Z]/.test(functionName)) {
+    return false;
+  }
+
+  return has(path, (node) => t.isJSXElement(node) || t.isJSXFragment(node));
+}
+
+export function isHook(path: NodePath<t.Function>): boolean {
+  const functionName = getFunctionName(path);
+
+  if (!functionName) {
+    return false;
+  }
+
+  return /^use[A-Z0-9]/.test(functionName);
+}
+
+function getFunctionName(path: NodePath<t.Function>) {
   let functionName: string | undefined;
 
   // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)
@@ -47,16 +74,5 @@ export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
     }
   }
 
-  if (!functionName) {
-    return false;
-  }
-
-  // 대문자로 시작하는지 간단 체크
-  if (!/^[A-Z]/.test(functionName)) {
-    return false;
-  }
-
-  return has(path, (node) => t.isJSXElement(node) || t.isJSXFragment(node));
+  return functionName;
 }
-
-// function isHookFunction
