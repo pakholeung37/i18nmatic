@@ -114,11 +114,7 @@ export class TWrapper {
     this.paths.forEach((path) => {
       path.traverse({
         StringLiteral: (path: NodePath<t.StringLiteral>) => {
-          if (
-            t.isCallExpression(path.parent) &&
-            t.isIdentifier(path.parent.callee) &&
-            path.parent.callee.name === "t"
-          ) {
+          if (this.aleadlyWrapped(path)) {
             return;
           }
 
@@ -131,5 +127,13 @@ export class TWrapper {
         },
       });
     });
+  }
+
+  private aleadlyWrapped(path: NodePath): boolean {
+    return (
+      t.isCallExpression(path.parent) &&
+      t.isIdentifier(path.parent.callee) &&
+      path.parent.callee.name === "t"
+    );
   }
 }
