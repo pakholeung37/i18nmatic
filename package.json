@@ -1,0 +1,26 @@
+{
+  "name": "auto-transform-i18n",
+  "version": "1.0.0",
+  "description": "hi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github-personal:seonghunYang/auto-transform-i18n.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/parser": "^7.26.9",
+    "@babel/traverse": "^7.26.9",
+    "@babel/types": "^7.26.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}
