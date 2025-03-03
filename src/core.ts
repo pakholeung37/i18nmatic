@@ -28,21 +28,22 @@ export function findHookContextNode(path: NodePath) {
   });
 }
 
-function isFunctionalComponent(path: NodePath<t.Function>): boolean {
+export function isFunctionalComponent(path: NodePath<t.Function>): boolean {
   let functionName: string | undefined;
 
-  // FunctionDeclaration, FunctionExpression
+  // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)
   if (
     (t.isFunctionDeclaration(path.node) || t.isFunctionExpression(path.node)) &&
     path.node.id
   ) {
     functionName = path.node.id.name;
-  } else if (t.isArrowFunctionExpression(path.node)) {
-    if (path.parentPath.isVariableDeclarator()) {
-      const id = path.parentPath.node.id;
-      if (t.isIdentifier(id)) {
-        functionName = id.name;
-      }
+  }
+
+  // 2. 이름이 없으면 부모가 VariableDeclarator인지 확인 (익명 FunctionExpression, ArrowFunctionExpression)
+  if (!functionName && path.parentPath.isVariableDeclarator()) {
+    const id = path.parentPath.node.id;
+    if (t.isIdentifier(id)) {
+      functionName = id.name;
     }
   }
 
@@ -58,4 +59,4 @@ function isFunctionalComponent(path: NodePath<t.Function>): boolean {
   return has(path, (node) => t.isJSXElement(node) || t.isJSXFragment(node));
 }
 
-function isHookFunction
+// function isHookFunction
