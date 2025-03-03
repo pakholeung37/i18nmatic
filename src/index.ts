@@ -1,4 +1,7 @@
-const code = `const a = 42; function hello() { return "world"; }`;
+import * as loader from "./loader";
 
+function main() {
+  loader.load();
+}
 
-console.log("Parsed AST:");
+main();
