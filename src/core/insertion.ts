@@ -1,8 +1,86 @@
 import { NodePath } from "@babel/traverse";
 import { HookContextNode } from "./type";
 import * as t from "@babel/types";
+import { RunType } from "./type";
+import { find, has } from "../common";
+
+function getImportModuleName(runType: RunType) {
+  switch (runType) {
+    case "next":
+      return "next-i18next";
+    case "react":
+      return "react-i18next";
+    default:
+      throw new Error("Run type is not specified");
+  }
+}
+
 export class Insertion {
-  constructor(private readonly paths: NodePath<HookContextNode>[]) {}
+  private importModuleName: string;
+  constructor(
+    private readonly paths: NodePath<HookContextNode>[],
+    private readonly parsedFileAST: t.File,
+    runType: RunType = "next"
+  ) {
+    this.importModuleName = getImportModuleName(runType);
+  }
+
+  insertImportDeclartion() {
+    // t.isProgram 찾기
+    // 이미 import문이 있는지 검사
+    // 파일 내부에 t가 있는지 검사 (hasTWrapper 함수 활용)
+    // 있으면 삽입
+    const programPath = find(this.parsedFileAST, t.isProgram);
+
+    if (!programPath) {
+      throw new Error("not validate file");
+    }
+
+    if (
+      has(
+        programPath,
+        (node) =>
+          t.isImportDeclaration(node) &&
+          node.source.value === this.importModuleName
+      )
+    ) {
+      return;
+    }
+
+    if (!this.hasTWrapper(programPath)) {
+      return;
+    }
+
+    const importDeclaration = t.importDeclaration(
+      [
+        t.importSpecifier(
+          t.identifier("useTranslation"),
+          t.identifier("useTranslation")
+        ),
+      ],
+      t.stringLiteral(this.importModuleName)
+    );
+
+    // Program 노드의 body 최상단에 import 선언 삽입
+    programPath.unshiftContainer("body", importDeclaration);
+  }
+
+  private hasTWrapper(path: NodePath): boolean {
+    let hasTCall = false;
+    path.traverse({
+      CallExpression(callPath) {
+        if (
+          t.isIdentifier(callPath.node.callee) &&
+          callPath.node.callee.name === "t"
+        ) {
+          hasTCall = true;
+          callPath.stop();
+        }
+      },
+    });
+
+    return hasTCall;
+  }
 
   formatWithBlockStatement() {
     this.paths.forEach((path) => {
@@ -20,9 +98,6 @@ export class Insertion {
   }
 
   insertUseTranslationHook() {
-    // 최상위 함수인지 판단
-    // t가 있는지(래핑이 되었는지 판단)
-    // 주입
     this.paths.forEach((path) => {
       if (!this.isTopLevelFunction(path)) return;
 
@@ -33,7 +108,6 @@ export class Insertion {
       }
       if (this.isAlreadyInjectedHook(path)) return;
 
-      // 주입할 훅: const { t } = useTranslation();
       const hookInjection = t.variableDeclaration("const", [
         t.variableDeclarator(
           t.objectPattern([
@@ -42,7 +116,7 @@ export class Insertion {
           t.callExpression(t.identifier("useTranslation"), [])
         ),
       ]);
-      // 함수의 첫 번째 문장으로 삽입
+
       const blockPath = path.get("body") as NodePath<t.BlockStatement>;
       blockPath.node.body.unshift(hookInjection);
     });
@@ -57,23 +131,6 @@ export class Insertion {
     );
 
     return !parentFn;
-  }
-
-  private hasTWrapper(path: NodePath<HookContextNode>): boolean {
-    let hasTCall = false;
-    path.traverse({
-      CallExpression(callPath) {
-        if (
-          t.isIdentifier(callPath.node.callee) &&
-          callPath.node.callee.name === "t"
-        ) {
-          hasTCall = true;
-          callPath.stop();
-        }
-      },
-    });
-
-    return hasTCall;
   }
 
   private isAlreadyInjectedHook(path: NodePath<HookContextNode>): boolean {

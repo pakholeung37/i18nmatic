@@ -6,3 +6,5 @@ export type PreHookContextNode =
   | t.ArrowFunctionExpression;
 
 export type HookContextNode = PreHookContextNode;
+
+export type RunType = "next" | "react";
