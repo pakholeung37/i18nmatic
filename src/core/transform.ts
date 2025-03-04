@@ -3,7 +3,7 @@ import { TWrapper } from "./twrapper";
 import * as t from "@babel/types";
 
 export function transform(
-  ast: t.Node,
+  ast: t.File,
   checkLanguage: (text: string) => boolean
 ) {
   const hookContextNodes = findHookContextNode(ast);

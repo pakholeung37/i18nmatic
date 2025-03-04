@@ -3,7 +3,7 @@ import * as t from "@babel/types";
 import { has } from "../common";
 import { HookContextNode, PreHookContextNode } from "./type";
 
-export function findHookContextNode(node: t.Node): NodePath<HookContextNode>[] {
+export function findHookContextNode(node: t.File): NodePath<HookContextNode>[] {
   const hookContextNodes: NodePath<HookContextNode>[] = [];
 
   traverse(node, {
