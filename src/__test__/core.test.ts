@@ -575,4 +575,60 @@ describe("Insertion", () => {
 
     expect(output).toContain('import { useTranslation } from "next-i18next"');
   });
+
+  it("should insert an import declaration when a t call exists and the import is missin on react", () => {
+    const code = `
+      const Component = () => {
+        return (
+          <div>{t("안녕하세요")}</div>
+        );
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const insertion = new core.Insertion(hookContextNodes, ast, "react");
+
+    insertion.insertImportDeclartion();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('import { useTranslation } from "react-i18next"');
+  });
+
+  it("should inject both the translation hook and the import declaration when a t call exists", () => {
+    const code = `
+      const Component = () => <div>{t("안녕하세요")}</div>
+    `;
+
+    // 1. AST 생성 (jsx, typescript 플러그인 활성화)
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. Insertion 인스턴스 생성 후 insert() 실행
+    const insertion = new core.Insertion(hookContextNodes, ast);
+    insertion.insert();
+
+    // 4. AST를 코드로 변환하여 결과 검증
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('import { useTranslation } from "next-i18next"');
+    expect(output).toContain("const { t } = useTranslation()");
+  });
 });
