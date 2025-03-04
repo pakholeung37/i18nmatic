@@ -1,10 +1,7 @@
-import { NodePath } from "@babel/traverse";
+import traverse, { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
 
-export function has<T>(
-  path: NodePath,
-  check: (node: t.Node) => boolean
-): boolean {
+export function has(path: NodePath, check: (node: t.Node) => boolean): boolean {
   let found = false;
 
   path.traverse({
@@ -17,6 +14,24 @@ export function has<T>(
   });
 
   return found;
+}
+
+export function find<T extends t.Node>(
+  node: t.Node,
+  check: (node: t.Node) => node is T
+): NodePath<T> | null {
+  let findPath: NodePath<T> | null = null;
+
+  traverse(node, {
+    enter(p) {
+      if (check(p.node)) {
+        findPath = p as NodePath<T>;
+        p.stop();
+      }
+    },
+  });
+
+  return findPath;
 }
 
 type Language = "ko";
