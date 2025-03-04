@@ -393,7 +393,7 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. TWrapper 인스턴스 생성 및 wrap 실행
-    const insertion = new core.Insertion(hookContextNodes);
+    const insertion = new core.Insertion(hookContextNodes, ast);
 
     insertion.formatWithBlockStatement();
 
@@ -427,7 +427,7 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. TWrapper 인스턴스 생성 및 wrap 실행
-    const insertion = new core.Insertion(hookContextNodes);
+    const insertion = new core.Insertion(hookContextNodes, ast);
 
     // 먼저 block statement로 감싸는 작업 실행 (암시적 반환이 있을 경우 대비)
     insertion.insertUseTranslationHook();
@@ -501,7 +501,7 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. Insertion 인스턴스 생성 및 useTranslation 훅 주입 시도
-    const insertion = new core.Insertion(hookContextNodes);
+    const insertion = new core.Insertion(hookContextNodes, ast);
     insertion.insertUseTranslationHook();
 
     const output = generate(ast, {
@@ -535,7 +535,7 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. TWrapper 인스턴스 생성 및 wrap 실행
-    const insertion = new core.Insertion(hookContextNodes);
+    const insertion = new core.Insertion(hookContextNodes, ast);
 
     // 먼저 block statement로 감싸는 작업 실행 (암시적 반환이 있을 경우 대비)
     insertion.insertUseTranslationHook();
@@ -544,7 +544,35 @@ describe("Insertion", () => {
       concise: true,
       jsescOption: { minimal: true },
     }).code;
-    // 기대: t() 호출이 없으므로, 훅 주입이 발생하지 않아야 한다.
+
     expect(output).not.toContain("const { t } = useTranslation()");
+  });
+
+  it("should insert an import declaration when a t call exists and the import is missing", () => {
+    const code = `
+      const Component = () => {
+        return (
+          <div>{t("안녕하세요")}</div>
+        );
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const insertion = new core.Insertion(hookContextNodes, ast);
+
+    insertion.insertImportDeclartion();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('import { useTranslation } from "next-i18next"');
   });
 });
