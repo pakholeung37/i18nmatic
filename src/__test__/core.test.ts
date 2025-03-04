@@ -364,9 +364,9 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. TWrapper 인스턴스 생성 및 wrap 실행
-    const insertion = new core.Insertion(hookContextNodes);
+    const insertion = new core.Insertion(hookContextNodes, ast);
 
-    insertion.formatWithBlockStatement();
+    insertion.wrapFunctionsWithBlockStatement();
 
     const output = generate(ast, { jsescOption: { minimal: true } }).code;
     // 예상 변환 결과:
@@ -395,7 +395,7 @@ describe("Insertion", () => {
     // 3. TWrapper 인스턴스 생성 및 wrap 실행
     const insertion = new core.Insertion(hookContextNodes, ast);
 
-    insertion.formatWithBlockStatement();
+    insertion.wrapFunctionsWithBlockStatement();
 
     const output = generate(ast, { jsescOption: { minimal: true } }).code;
     // 예상 변환 결과:
@@ -463,8 +463,8 @@ describe("Insertion", () => {
     const hookContextNodes = core.findHookContextNode(ast);
 
     // 3. TWrapper 인스턴스 생성 및 useTranslation 훅 주입 실행
-    const insertion = new core.Insertion(hookContextNodes);
-    insertion.formatWithBlockStatement();
+    const insertion = new core.Insertion(hookContextNodes, ast);
+    insertion.wrapFunctionsWithBlockStatement();
     insertion.insertUseTranslationHook();
 
     const output = generate(ast, {

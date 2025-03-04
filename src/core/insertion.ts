@@ -25,29 +25,28 @@ export class Insertion {
     this.importModuleName = getImportModuleName(runType);
   }
 
+  insert() {
+    try {
+      this.wrapFunctionsWithBlockStatement();
+      this.insertUseTranslationHook();
+      this.insertImportDeclartion();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to insert translations: ${error.message}`);
+      }
+      // 일반 객체나 다른 타입의 에러인 경우
+      throw new Error(`Failed to insert translations: ${String(error)}`);
+    }
+  }
+
   insertImportDeclartion() {
-    // t.isProgram 찾기
-    // 이미 import문이 있는지 검사
-    // 파일 내부에 t가 있는지 검사 (hasTWrapper 함수 활용)
-    // 있으면 삽입
     const programPath = find(this.parsedFileAST, t.isProgram);
 
     if (!programPath) {
-      throw new Error("not validate file");
+      throw new Error("Invalid file: Program node not found");
     }
 
-    if (
-      has(
-        programPath,
-        (node) =>
-          t.isImportDeclaration(node) &&
-          node.source.value === this.importModuleName
-      )
-    ) {
-      return;
-    }
-
-    if (!this.hasTWrapper(programPath)) {
+    if (!this.shouldInsertImportDeclaration(programPath)) {
       return;
     }
 
@@ -65,48 +64,33 @@ export class Insertion {
     programPath.unshiftContainer("body", importDeclaration);
   }
 
-  private hasTWrapper(path: NodePath): boolean {
-    let hasTCall = false;
-    path.traverse({
-      CallExpression(callPath) {
-        if (
-          t.isIdentifier(callPath.node.callee) &&
-          callPath.node.callee.name === "t"
-        ) {
-          hasTCall = true;
-          callPath.stop();
-        }
-      },
-    });
-
-    return hasTCall;
+  private shouldInsertImportDeclaration(
+    programPath: NodePath<t.Program>
+  ): boolean {
+    return (
+      !has(
+        programPath,
+        (node) =>
+          t.isImportDeclaration(node) &&
+          node.source.value === this.importModuleName
+      ) && this.hasTCall(programPath)
+    );
   }
 
-  formatWithBlockStatement() {
+  wrapFunctionsWithBlockStatement() {
     this.paths.forEach((path) => {
-      // 훅을 주입할 수 있게, blockStatement로 감싸기
-      if (t.isArrowFunctionExpression(path.node)) {
-        // 만약 body가 BlockStatement가 아니라면, 암시적 반환이므로 변환
-        if (!t.isBlockStatement(path.node.body)) {
-          // 기존 expression을 명시적 반환문(return expression;)으로 감싼 BlockStatement 생성
-          path.node.body = t.blockStatement([
-            t.returnStatement(path.node.body),
-          ]);
-        }
+      if (
+        t.isArrowFunctionExpression(path.node) &&
+        !t.isBlockStatement(path.node.body)
+      ) {
+        path.node.body = t.blockStatement([t.returnStatement(path.node.body)]);
       }
     });
   }
 
   insertUseTranslationHook() {
     this.paths.forEach((path) => {
-      if (!this.isTopLevelFunction(path)) return;
-
-      if (!this.hasTWrapper(path)) return;
-
-      if (!t.isBlockStatement(path.node.body)) {
-        throw new Error("only explicit return can insert hook");
-      }
-      if (this.isAlreadyInjectedHook(path)) return;
+      if (!this.shouldInsertTranslationHook(path)) return;
 
       const hookInjection = t.variableDeclaration("const", [
         t.variableDeclarator(
@@ -120,6 +104,27 @@ export class Insertion {
       const blockPath = path.get("body") as NodePath<t.BlockStatement>;
       blockPath.node.body.unshift(hookInjection);
     });
+  }
+
+  private shouldInsertTranslationHook(
+    path: NodePath<HookContextNode>
+  ): boolean {
+    return (
+      this.isTopLevelFunction(path) &&
+      this.hasTCall(path) &&
+      t.isBlockStatement(path.node.body) &&
+      !this.isAlreadyInjectedHook(path)
+    );
+  }
+
+  private hasTCall(path: NodePath): boolean {
+    return has(
+      path,
+      (node) =>
+        t.isCallExpression(node) &&
+        t.isIdentifier(node.callee) &&
+        node.callee.name === "t"
+    );
   }
 
   private isTopLevelFunction(path: NodePath<HookContextNode>): boolean {
@@ -137,20 +142,13 @@ export class Insertion {
     const blockPath = path.get("body") as NodePath<t.BlockStatement>;
     const firstStmt = blockPath.node.body[0];
 
-    if (firstStmt && t.isVariableDeclaration(firstStmt)) {
-      const decl = firstStmt.declarations[0];
-
-      if (
-        t.isVariableDeclarator(decl) &&
-        t.isObjectPattern(decl.id) &&
-        t.isCallExpression(decl.init) &&
-        t.isIdentifier(decl.init.callee) &&
-        decl.init.callee.name === "useTranslation"
-      ) {
-        return true;
-      }
-    }
-
-    return false;
+    return (
+      t.isVariableDeclaration(firstStmt) &&
+      t.isVariableDeclarator(firstStmt.declarations[0]) &&
+      t.isObjectPattern(firstStmt.declarations[0].id) &&
+      t.isCallExpression(firstStmt.declarations[0].init) &&
+      t.isIdentifier(firstStmt.declarations[0].init.callee) &&
+      firstStmt.declarations[0].init.callee.name === "useTranslation"
+    );
   }
 }
