@@ -406,4 +406,145 @@ describe("Insertion", () => {
     expect(output).toContain("{");
     expect(output).toContain("}");
   });
+
+  it("inserts useTranslation hook at the top of top-level function if t() exists", () => {
+    const code = `
+      const Component = () => {
+        const handleClick = () => {
+          alert(t('반갑습니다'));
+        }
+        return (
+          <button onClick={handleClick}>t('안녕하세요')</button>
+        );
+      }
+    `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const insertion = new core.Insertion(hookContextNodes);
+
+    // 먼저 block statement로 감싸는 작업 실행 (암시적 반환이 있을 경우 대비)
+    insertion.insertUseTranslationHook();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+    // 기대: 최상위 함수의 시작 부분에 const { t } = useTranslation(); 이 삽입되어 있어야 한다.
+    expect(output).toContain("const { t } = useTranslation()");
+  });
+
+  it("inserts useTranslation hook at the top of top-level functions when t() exists in both components", () => {
+    const code = `
+        const Component1 = () => {
+          const handleClick = () => {
+            alert(t('반갑습니다'));
+          }
+          return (
+            <button onClick={handleClick}>t('안녕하세요')</button>
+          );
+        }
+  
+        const Component2 = () => <button onClick={handleClick}>{t('안녕하세요')}</button>
+        
+      `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 useTranslation 훅 주입 실행
+    const insertion = new core.Insertion(hookContextNodes);
+    insertion.formatWithBlockStatement();
+    insertion.insertUseTranslationHook();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    // 정규식을 이용해 "const { t } = useTranslation()" 패턴이 두 번 이상 등장하는지 확인
+    const regex = /const\s*{\s*t\s*}\s*=\s*useTranslation\(\)/g;
+    const matches = output.match(regex);
+
+    expect(matches).not.toBeNull();
+    expect(matches!.length).toBe(2);
+  });
+
+  it("does not insert duplicate useTranslation hook if already present", () => {
+    const code = `
+        const Component = () => {
+          const { t } = useTranslation();
+          const handleClick = () => {
+            alert(t('반갑습니다'));
+          }
+          return (
+            <button onClick={handleClick}>t('안녕하세요')</button>
+          );
+        }
+      `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. Insertion 인스턴스 생성 및 useTranslation 훅 주입 시도
+    const insertion = new core.Insertion(hookContextNodes);
+    insertion.insertUseTranslationHook();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    // 정규식을 이용해 "const { t } = useTranslation()" 패턴이 정확히 한 번만 존재하는지 확인
+    const regex = /const\s*{\s*t\s*}\s*=\s*useTranslation\(\)/g;
+    const matches = output.match(regex);
+
+    expect(matches).not.toBeNull();
+    expect(matches!.length).toBe(1);
+  });
+
+  it("does not insert useTranslation hook if t() call is absent", () => {
+    const code = `
+      const Component = () => {
+        return (
+          <div>Hello</div>
+        );
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const insertion = new core.Insertion(hookContextNodes);
+
+    // 먼저 block statement로 감싸는 작업 실행 (암시적 반환이 있을 경우 대비)
+    insertion.insertUseTranslationHook();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+    // 기대: t() 호출이 없으므로, 훅 주입이 발생하지 않아야 한다.
+    expect(output).not.toContain("const { t } = useTranslation()");
+  });
 });
