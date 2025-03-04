@@ -349,3 +349,61 @@ describe("TWrapper", () => {
     expect(output).toContain('{t("반갑습니다.")}');
   });
 });
+
+describe("Insertion", () => {
+  it("converts arrow function with implicit return to a block statement with explicit return", () => {
+    const code = `
+      const Component = () => <p>안녕하세요</p>;
+    `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const insertion = new core.Insertion(hookContextNodes);
+
+    insertion.formatWithBlockStatement();
+
+    const output = generate(ast, { jsescOption: { minimal: true } }).code;
+    // 예상 변환 결과:
+    // const Component = () => {
+    //   return <p>안녕하세요</p>;
+    // };
+    expect(output).toContain("return <p>안녕하세요</p>;");
+    expect(output).toContain("{");
+    expect(output).toContain("}");
+  });
+
+  it("does not convert arrow function with explicit return", () => {
+    const code = `
+    const Component = () => {
+      return <p>안녕하세요</p>;
+    };
+  `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const insertion = new core.Insertion(hookContextNodes);
+
+    insertion.formatWithBlockStatement();
+
+    const output = generate(ast, { jsescOption: { minimal: true } }).code;
+    // 예상 변환 결과:
+    // const Component = () => {
+    //   return <p>안녕하세요</p>;
+    // };
+    expect(output).toContain("return <p>안녕하세요</p>;");
+    expect(output).toContain("{");
+    expect(output).toContain("}");
+  });
+});
