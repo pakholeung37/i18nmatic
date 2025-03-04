@@ -27,7 +27,6 @@ export class Insertion {
       if (!this.isTopLevelFunction(path)) return;
 
       if (!this.hasTWrapper(path)) return;
-      console.log("????");
 
       if (!t.isBlockStatement(path.node.body)) {
         throw new Error("only explicit return can insert hook");
