@@ -631,4 +631,75 @@ describe("Insertion", () => {
     expect(output).toContain('import { useTranslation } from "next-i18next"');
     expect(output).toContain("const { t } = useTranslation()");
   });
+
+  it("does not insert import declaration if already present", () => {
+    const code = `
+      import { useTranslation } from "next-i18next"
+
+      const Component = () => {
+        const { t } = useTranslation();
+        return (
+          <div>{t("안녕하세요")}</div>
+        );
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const insertion = new core.Insertion(hookContextNodes, ast);
+
+    insertion.insertImportDeclartion();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    const regex = /import\s*{\s*useTranslation\s*}\s*from\s*"next-i18next"/g;
+    const matches = output.match(regex);
+
+    expect(matches).not.toBeNull();
+    expect(matches!.length).toBe(1);
+  });
+
+  it("does not insert import declaration if already present", () => {
+    const code = `
+      import { useState } from "react";
+      import { useTranslation } from "next-i18next";
+
+      const Component = () => {
+        const { t } = useTranslation();
+        return (
+          <div>{t("안녕하세요")}</div>
+        );
+      }
+    `;
+
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const insertion = new core.Insertion(hookContextNodes, ast);
+
+    insertion.insertImportDeclartion();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    const regex = /import\s*{\s*useTranslation\s*}\s*from\s*"next-i18next"/g;
+    const matches = output.match(regex);
+
+    expect(matches).not.toBeNull();
+    expect(matches!.length).toBe(1);
+  });
 });
