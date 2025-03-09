@@ -1,12 +1,15 @@
-import * as loader from "./loader";
+import { Loader } from "./loader";
 import * as core from "./core";
 import { createLanguageCheckFunction } from "./common";
 
-function main() {
-  const ast = loader.load();
+async function main() {
+  const loader = new Loader();
 
   // 추후 여러 언어 동적 할당
-  core.transform(ast, createLanguageCheckFunction("ko"));
+  loader.load((file) => {
+    console.log(file);
+    core.transform(file.ast, createLanguageCheckFunction("ko"));
+  });
 }
 
 main();

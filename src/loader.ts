@@ -1,25 +1,53 @@
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as path from "path";
 import * as parser from "@babel/parser";
 import * as t from "@babel/types";
+import { glob } from "glob";
 
 const fileName = "./src/source/components.tsx";
 
-export function load(): t.File {
-  console.log("Current working directory: ", process.cwd());
-  const code = fs.readFileSync(
-    path.resolve(process.cwd(), "src/source/component.tsx"),
-    "utf8"
-  );
+const entry = "./src/source";
 
-  console.log("import code:", code);
+// ##
 
-  const ast = parser.parse(code, {
-    sourceType: "module",
-    plugins: ["typescript", "jsx"],
-  });
+// 1. 사용자는 자신의 코드를 진입점을 설정하여 코드를 넣을 수 있다.
+// 2. 사용자는 yml된 설정 파일을 작성하여 값을 전달할 수 있다.
+// 3. 설치 후 CLI를 사용하여 해당 라이브러리를 동작시킬 수 있다
+// 4. ignore-path로 무시할 부분을 선택할 수 있다.
+// 5. 래핑할 언어를 선택할 수 있다
+//     1. 추후 코어에 주입한다(반환값으로 주고 index에서 주입)
 
-  console.log("parsed code:", ast);
+interface File {
+  ast: t.File;
+  filepath: string;
+}
 
-  return ast;
+export class Loader {
+  constructor() {
+    const entry = "./src/source";
+  }
+
+  async getTargetFilePaths(entry: string): Promise<string[]> {
+    return await glob(`${entry}/**/*.{js,jsx,ts,tsx}`);
+  }
+
+  async loadSourceFile(filePath: string): Promise<t.File> {
+    const code = await fs.readFile(filePath, "utf8");
+
+    return parser.parse(code, {
+      sourceType: "module",
+      plugins: ["typescript", "jsx"],
+    });
+  }
+
+  async load(callback: (file: File) => void) {
+    const filePaths = await this.getTargetFilePaths(entry);
+
+    filePaths.forEach((filePath) => {
+      this.loadSourceFile(filePath).then((file) => {
+        // 파일에 전달받은 콜백 수행
+        callback({ ast: file, filepath: filePath });
+      });
+    });
+  }
 }
