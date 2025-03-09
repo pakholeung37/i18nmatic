@@ -3,7 +3,7 @@ import React from "react";
 
 // 사용자 정의 훅 예제
 export const useCustomHook = () => {
-  return "custom hook value";
+  return "안녕하세요";
 };
 
 // 훅을 사용하는 함수형 컴포넌트 예제
