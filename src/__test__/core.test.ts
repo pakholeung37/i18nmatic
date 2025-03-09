@@ -348,6 +348,39 @@ describe("TWrapper", () => {
     // - JSX Text
     expect(output).toContain('{t("반갑습니다.")}');
   });
+
+  it("should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()", () => {
+    // 1. AST 파싱
+    const code = `
+      function TypeAnnotatedTemplate<T>(value: T) {
+      
+      return <div>{\`\${value as string}님 - 한글\`}</div>;
+      }
+    `;
+    const ast = parser.parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+
+    // 2. HookContextNode 후보 찾기
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    // 3. TWrapper 인스턴스 생성 및 wrap 실행
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      // 간단히 한글 유무만 확인하도록 구현
+      createLanguageCheckFunction("ko")
+    );
+    wrapper.wrap(); // wrap()은 StringLiteral, JSXText, TemplateLiteral 등을 모두 처리
+
+    // 4. 변환 결과 확인
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('{t("{{value}}님 - 한글", { "value": value })}');
+  });
 });
 
 describe("Insertion", () => {

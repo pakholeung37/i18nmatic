@@ -82,13 +82,21 @@ export class TWrapper {
           for (let i = 0; i < expressions.length; i++) {
             translationKey += quasis[i].value.cooked;
             // expressions[i]가 TSType이 아닌 실행 표현식인 경우에만 처리
-            if (!t.isTSType(expressions[i]) && t.isExpression(expressions[i])) {
-              const exprCode = generate(expressions[i]).code;
+
+            let expr = expressions[i];
+
+            if (t.isTSAsExpression(expr)) {
+              // 재귀 함수로 'as' 중첩 제거
+              expr = this.unwrapTSAsExpression(expr);
+            }
+
+            if (t.isExpression(expr)) {
+              const exprCode = generate(expr).code;
               translationKey += `{{${exprCode}}}`;
               properties.push(
                 t.objectProperty(
                   t.stringLiteral(exprCode),
-                  expressions[i] as t.Expression
+                  expr as t.Expression
                 )
               );
             } else {
@@ -136,5 +144,13 @@ export class TWrapper {
       }
     }
     return false;
+  }
+
+  private unwrapTSAsExpression(node: t.Expression): t.Expression {
+    // 만약 node가 TSAsExpression이면, 그 내부 realExpr를 반환
+    if (t.isTSAsExpression(node)) {
+      return this.unwrapTSAsExpression(node.expression);
+    }
+    return node;
   }
 }
