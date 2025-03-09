@@ -3,10 +3,9 @@ import * as path from "path";
 import * as parser from "@babel/parser";
 import * as t from "@babel/types";
 import { glob } from "glob";
+import { globSync } from "fs";
 
 const fileName = "./src/source/components.tsx";
-
-const entry = "./src/source";
 
 // ##
 
@@ -23,31 +22,32 @@ interface File {
 }
 
 export class Loader {
+  entry: string;
   constructor() {
-    const entry = "./src/source";
+    this.entry = "./src/source";
   }
 
-  async getTargetFilePaths(entry: string): Promise<string[]> {
-    return await glob(`${entry}/**/*.{js,jsx,ts,tsx}`);
-  }
-
-  async loadSourceFile(filePath: string): Promise<t.File> {
-    const code = await fs.readFile(filePath, "utf8");
-
-    return parser.parse(code, {
-      sourceType: "module",
-      plugins: ["typescript", "jsx"],
-    });
-  }
-
-  async load(callback: (file: File) => void) {
-    const filePaths = await this.getTargetFilePaths(entry);
+  load(callback: (file: File) => void) {
+    const filePaths = this.getTargetFilePaths();
 
     filePaths.forEach((filePath) => {
       this.loadSourceFile(filePath).then((file) => {
         // 파일에 전달받은 콜백 수행
         callback({ ast: file, filepath: filePath });
       });
+    });
+  }
+
+  private getTargetFilePaths(): string[] {
+    return globSync(`${this.entry}/**/*.{js,jsx,ts,tsx}`);
+  }
+
+  private async loadSourceFile(filePath: string): Promise<t.File> {
+    const code = await fs.readFile(filePath, "utf8");
+
+    return parser.parse(code, {
+      sourceType: "module",
+      plugins: ["typescript", "jsx"],
     });
   }
 }
