@@ -1,11 +1,7 @@
 import * as fs from "fs/promises";
-import * as path from "path";
 import * as parser from "@babel/parser";
 import * as t from "@babel/types";
-import { glob } from "glob";
 import { globSync } from "fs";
-
-const fileName = "./src/source/components.tsx";
 
 // ##
 

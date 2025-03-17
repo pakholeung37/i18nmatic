@@ -9,13 +9,15 @@ async function main() {
 
   // 추후 여러 언어 동적 할당
   loader.load((file) => {
-    console.log(file);
     const transformAst = core.transform(
       file.ast,
       createLanguageCheckFunction("ko")
     );
 
     generator.generate(transformAst, file.filepath);
+
+    // extractor
+    // JSON
   });
 }
 
