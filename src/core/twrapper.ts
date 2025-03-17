@@ -2,6 +2,7 @@ import generate from "@babel/generator";
 import { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
 import { HookContextNode } from "./type";
+import { getTemplateLiteralKey } from "../common";
 
 export class TWrapper {
   constructor(
@@ -74,38 +75,7 @@ export class TWrapper {
     this.paths.forEach((path) => {
       path.traverse({
         TemplateLiteral: (tplPath: NodePath<t.TemplateLiteral>) => {
-          const quasis = tplPath.node.quasis;
-          const expressions = tplPath.node.expressions;
-          let translationKey = "";
-          const properties: t.ObjectProperty[] = [];
-
-          for (let i = 0; i < expressions.length; i++) {
-            translationKey += quasis[i].value.cooked;
-            // expressions[i]가 TSType이 아닌 실행 표현식인 경우에만 처리
-
-            let expr = expressions[i];
-
-            if (t.isTSAsExpression(expr)) {
-              // 재귀 함수로 'as' 중첩 제거
-              expr = this.unwrapTSAsExpression(expr);
-            }
-
-            if (t.isExpression(expr)) {
-              const exprCode = generate(expr).code;
-              translationKey += `{{${exprCode}}}`;
-              properties.push(
-                t.objectProperty(
-                  t.stringLiteral(exprCode),
-                  expr as t.Expression
-                )
-              );
-            } else {
-              // TSType인 경우에는 플레이스홀더만 추가 (빈 플레이스홀더)
-              translationKey += `{{}}`;
-            }
-          }
-          // 마지막 고정 문자열 부분 추가
-          translationKey += quasis[expressions.length].value.cooked;
+          const { translationKey, properties } = getTemplateLiteralKey(tplPath);
 
           // 템플릿 리터럴 전체 텍스트(translationKey)에 한글이 포함되어 있는지 검사
           if (!this.checkLanguage(translationKey)) {
@@ -118,6 +88,7 @@ export class TWrapper {
             t.stringLiteral(translationKey),
             objExpr,
           ]);
+
           tplPath.replaceWith(callExpr);
         },
       });
@@ -144,13 +115,5 @@ export class TWrapper {
       }
     }
     return false;
-  }
-
-  private unwrapTSAsExpression(node: t.Expression): t.Expression {
-    // 만약 node가 TSAsExpression이면, 그 내부 realExpr를 반환
-    if (t.isTSAsExpression(node)) {
-      return this.unwrapTSAsExpression(node.expression);
-    }
-    return node;
   }
 }

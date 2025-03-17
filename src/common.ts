@@ -1,3 +1,4 @@
+import generate from "@babel/generator";
 import traverse, { NodePath } from "@babel/traverse";
 import * as t from "@babel/types";
 
@@ -49,4 +50,46 @@ function containsKorean(text: string): boolean {
   // [가-힣] 범위의 한글 문자를 찾는 정규식
   const koreanRegex = /[가-힣]/;
   return koreanRegex.test(text);
+}
+
+export function getTemplateLiteralKey(tplPath: NodePath<t.TemplateLiteral>) {
+  const quasis = tplPath.node.quasis;
+  const expressions = tplPath.node.expressions;
+  let translationKey = "";
+  const properties: t.ObjectProperty[] = [];
+
+  for (let i = 0; i < expressions.length; i++) {
+    translationKey += quasis[i].value.cooked;
+    // expressions[i]가 TSType이 아닌 실행 표현식인 경우에만 처리
+
+    let expr = expressions[i];
+
+    if (t.isTSAsExpression(expr)) {
+      // 재귀 함수로 'as' 중첩 제거
+      expr = unwrapTSAsExpression(expr);
+    }
+
+    if (t.isExpression(expr)) {
+      const exprCode = generate(expr).code;
+      translationKey += `{{${exprCode}}}`;
+      properties.push(
+        t.objectProperty(t.stringLiteral(exprCode), expr as t.Expression)
+      );
+    } else {
+      // TSType인 경우에는 플레이스홀더만 추가 (빈 플레이스홀더)
+      translationKey += `{{}}`;
+    }
+  }
+  // 마지막 고정 문자열 부분 추가
+  translationKey += quasis[expressions.length].value.cooked;
+
+  return { translationKey, properties };
+}
+
+function unwrapTSAsExpression(node: t.Expression): t.Expression {
+  // 만약 node가 TSAsExpression이면, 그 내부 realExpr를 반환
+  if (t.isTSAsExpression(node)) {
+    return unwrapTSAsExpression(node.expression);
+  }
+  return node;
 }
