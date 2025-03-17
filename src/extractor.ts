@@ -1,12 +1,7 @@
 import * as t from "@babel/types";
 import traverse, { NodePath } from "@babel/traverse";
 import { getTemplateLiteralKey } from "./common";
-
-interface ExtractedText {
-  text: string;
-  isTWrapped: boolean;
-  containerName: string;
-}
+import { ExtractedText } from "./core/type";
 
 export class Extractor {
   private results: ExtractedText[] = [];

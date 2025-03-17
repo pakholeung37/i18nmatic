@@ -8,3 +8,9 @@ export type PreHookContextNode =
 export type HookContextNode = PreHookContextNode;
 
 export type RunType = "next" | "react";
+
+export interface ExtractedText {
+  text: string;
+  isTWrapped: boolean;
+  containerName: string;
+}
