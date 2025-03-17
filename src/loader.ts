@@ -26,14 +26,24 @@ export class Loader {
     this.locales = ["JP"];
   }
 
-  load(callback: (file: File) => void) {
+  load(
+    callback: (file: File) => void,
+    { onLoaded }: { onLoaded?: () => void }
+  ) {
     const filePaths = this.getTargetFilePaths();
 
+    const promises: Promise<void>[] = [];
     filePaths.forEach((filePath) => {
-      this.loadSourceFile(filePath).then((file) => {
-        // 파일에 전달받은 콜백 수행
-        callback({ ast: file, filepath: filePath });
-      });
+      promises.push(
+        this.loadSourceFile(filePath).then((file) => {
+          // 파일에 전달받은 콜백 수행
+          callback({ ast: file, filepath: filePath });
+        })
+      );
+    });
+
+    Promise.all(promises).then(() => {
+      onLoaded?.();
     });
   }
 
