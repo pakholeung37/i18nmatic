@@ -19,8 +19,11 @@ interface File {
 
 export class Loader {
   entry: string;
+  locales: string[] = [];
+
   constructor() {
     this.entry = "./src/source";
+    this.locales = ["JP"];
   }
 
   load(callback: (file: File) => void) {
