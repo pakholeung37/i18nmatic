@@ -40,7 +40,8 @@ export async function main(options: Options) {
         extractedTexts.push(
           ...new Extractor(
             file.ast,
-            createLanguageCheckFunction("ko")
+            createLanguageCheckFunction("ko"),
+            file.filepath
           ).extract()
         );
       } catch (error) {

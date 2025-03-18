@@ -8,7 +8,8 @@ export class Extractor {
 
   constructor(
     private readonly ast: t.File,
-    private readonly checkLanguage: (text: string) => boolean
+    private readonly checkLanguage: (text: string) => boolean,
+    private readonly filepath: string
   ) {}
 
   public extract() {
@@ -32,7 +33,11 @@ export class Extractor {
     const isTWrapped = this.checkTWrapper(path);
     const containerName = this.findContainerName(path);
 
-    this.results.push({ text, isTWrapped, containerName: containerName || "" });
+    this.results.push({
+      text,
+      isTWrapped,
+      containerName: this.filepath + "/" + (containerName || ""),
+    });
   }
 
   private handleJSXText(path: NodePath<t.JSXText>) {
@@ -44,7 +49,11 @@ export class Extractor {
     const isTWrapped = false; // twrapper 후에는 JSXText로 인식되지 않음
     const containerName = this.findContainerName(path);
 
-    this.results.push({ text, isTWrapped, containerName: containerName || "" });
+    this.results.push({
+      text,
+      isTWrapped,
+      containerName: this.filepath + "/" + (containerName || ""),
+    });
   }
 
   private handleTemplateLiteral(path: NodePath<t.TemplateLiteral>) {
@@ -60,7 +69,7 @@ export class Extractor {
     this.results.push({
       text: translationKey,
       isTWrapped,
-      containerName: containerName || "",
+      containerName: this.filepath + "/" + (containerName || ""),
     });
   }
 
