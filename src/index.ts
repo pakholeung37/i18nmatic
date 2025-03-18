@@ -5,7 +5,7 @@ import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
 
-async function main() {
+export async function main() {
   const loader = new Loader();
   const generator = new Generator();
   const extractedTexts: ExtractedText[] = [];
@@ -35,5 +35,3 @@ async function main() {
     }
   );
 }
-
-main();
