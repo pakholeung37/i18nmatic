@@ -26,7 +26,11 @@ async function main() {
     },
     {
       onLoaded: () => {
-        generator.generateJson(extractedTexts, ["ko"], "./src/source");
+        generator.generateJson(
+          extractedTexts,
+          loader.options.locales,
+          loader.options.outputDir
+        );
       },
     }
   );
