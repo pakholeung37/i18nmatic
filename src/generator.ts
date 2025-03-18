@@ -3,6 +3,7 @@ import * as t from "@babel/types";
 import * as fs from "fs";
 import * as prettier from "prettier";
 import { ExtractedText } from "./core/type";
+import * as path from "path";
 
 export class Generator {
   private enablePrettier: boolean;
@@ -30,7 +31,7 @@ export class Generator {
     );
 
     locales.forEach((locale) => {
-      const filePath = `${outputDir}/${locale}.json`;
+      const filePath = `${outputDir}/${locale}/common.json`;
       this.writeFile(json, filePath);
     });
   }
@@ -42,6 +43,13 @@ export class Generator {
   }
 
   private writeFile(content: string, filePath: string): void {
+    const dir = path.dirname(filePath);
+
+    // recursive: true 옵션으로 경로 전체에 대한 디렉토리 생성
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
     fs.writeFileSync(filePath, content);
   }
 
