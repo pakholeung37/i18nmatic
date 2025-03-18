@@ -4,7 +4,11 @@
   "description": "A TypeScript library for parsing and traversing Babel AST",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "auto-transform-i18n": "./bin/cli.js"
+  },
   "scripts": {
+    "start": "node bin/cli.js",
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "test": "jest",
@@ -26,6 +30,7 @@
     "@babel/parser": "^7.26.9",
     "@babel/traverse": "^7.26.9",
     "@babel/types": "^7.26.9",
+    "commander": "^13.1.0",
     "glob": "^11.0.1",
     "prettier": "^3.5.3"
   },
