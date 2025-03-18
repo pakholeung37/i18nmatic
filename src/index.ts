@@ -27,12 +27,14 @@ export async function main(options: Options) {
   // 추후 여러 언어 동적 할당
   loader.load(
     (file) => {
-      const transformAst = core.transform(
+      const { ast: transformAst, isChanged } = core.transform(
         file.ast,
         createLanguageCheckFunction("ko")
       );
 
-      generator.generate(transformAst, file.filepath);
+      if (isChanged) {
+        generator.generate(transformAst, file.filepath);
+      }
 
       extractedTexts.push(
         ...new Extractor(file.ast, createLanguageCheckFunction("ko")).extract()

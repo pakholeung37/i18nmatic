@@ -28,8 +28,10 @@ export class Insertion {
   insert() {
     try {
       this.wrapFunctionsWithBlockStatement();
-      this.insertUseTranslationHook();
+      const isChanged = this.insertUseTranslationHook();
       this.insertImportDeclartion();
+
+      return isChanged;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Failed to insert translations: ${error.message}`);
@@ -89,6 +91,7 @@ export class Insertion {
   }
 
   insertUseTranslationHook() {
+    let isChanged = false;
     this.paths.forEach((path) => {
       if (!this.shouldInsertTranslationHook(path)) return;
 
@@ -103,7 +106,9 @@ export class Insertion {
 
       const blockPath = path.get("body") as NodePath<t.BlockStatement>;
       blockPath.node.body.unshift(hookInjection);
+      isChanged = true;
     });
+    return isChanged;
   }
 
   private shouldInsertTranslationHook(
