@@ -68,14 +68,11 @@ function NoKoreanComponent() {
   return <div>Hello only, no Korean here</div>;
 }
 
-// 12. 화살표 함수 + 암시적 반환 + 템플릿 리터럴
-const ArrowTemplateLiteral = () => <div>{`${"안녕"}과 ${"반갑습니다"}!`}</div>;
-
-// 13. 암시적 반환 Arrow Function + JSXText + 삼항연산자 동시
+// 12. 암시적 반환 Arrow Function + JSXText + 삼항연산자 동시
 const ComplexArrow = ({ isHello }) =>
   isHello ? <div>안녕하세요 - 삼항연산자</div> : <div>Hello - ternary</div>;
 
-// 14. 함수 선언문 + JSX Attribute 2개
+// 13. 함수 선언문 + JSX Attribute 2개
 function DoubleAttributeComponent() {
   return (
     <section title="안녕하세요 타이틀" aria-label="한글 라벨">
@@ -84,13 +81,13 @@ function DoubleAttributeComponent() {
   );
 }
 
-// 15. 화살표 함수 + 복합 템플릿 리터럴 (표현식, 한글, 영어 혼합)
+// 14. 화살표 함수 + 복합 템플릿 리터럴 (표현식, 한글, 영어 혼합)
 //    ex) `${user.name}님, 오늘은 ${date} 입니다. Have a good day!`
 const MixedTemplate = ({ user, date }) => (
   <div>{`${user.name}님, 오늘은 ${date} 입니다. Have a good day!`}</div>
 );
 
-// 16. (옵션) 함수 선언문 + JSX + Template Literal 내부에 TSType (타입 정보)
+// 15. (옵션) 함수 선언문 + JSX + Template Literal 내부에 TSType (타입 정보)
 //    -> 실무에서 타입이 혼합될 수 있는 케이스 (아주 드묾)
 //    -> 여기서 작성해두면 TSType 스킵 로직도 테스트 가능
 function TypeAnnotatedTemplate<T>(value: T) {
