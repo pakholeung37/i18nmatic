@@ -24,7 +24,10 @@ export class Generator {
     outputDir: string
   ): Promise<void> {
     const formattedData = this.formatExtractedText(data);
-    const json = JSON.stringify(formattedData, null, 2);
+    const json = JSON.stringify(formattedData, null, 2).replace(
+      /(\s+)"(__comment_\d+)"/g,
+      '\n$1"$2"'
+    );
 
     locales.forEach((locale) => {
       const filePath = `${outputDir}/${locale}.json`;
@@ -85,7 +88,7 @@ export class Generator {
     const result: Record<string, string> = {};
 
     data.forEach((item) => {
-      result[item.text] = "";
+      result[item.text] = item.text;
     });
 
     return result;
@@ -99,7 +102,7 @@ export class Generator {
     Object.keys(data).forEach((key, index) => {
       result[`__comment_${index}`] = key;
       data[key].forEach((item) => {
-        result[item.text] = "";
+        result[item.text] = item.text;
       });
     });
     return result;
