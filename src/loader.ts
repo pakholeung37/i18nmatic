@@ -19,13 +19,9 @@ interface File {
 
 export class Loader {
   private entry: string;
-  private locales: string[];
-  private outputDir: string;
 
-  constructor() {
-    this.entry = "./src/source";
-    this.locales = ["JP"];
-    this.outputDir = "./src/source";
+  constructor({ entry }: { entry: string }) {
+    this.entry = entry;
   }
 
   load(
@@ -60,13 +56,5 @@ export class Loader {
       sourceType: "module",
       plugins: ["typescript", "jsx"],
     });
-  }
-
-  get options() {
-    return {
-      entry: this.entry,
-      locales: this.locales,
-      outputDir: this.outputDir,
-    };
   }
 }

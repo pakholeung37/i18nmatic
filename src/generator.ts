@@ -7,8 +7,8 @@ import * as path from "path";
 
 export class Generator {
   private enablePrettier: boolean;
-  constructor() {
-    this.enablePrettier = true;
+  constructor({ enablePrettier }: { enablePrettier: boolean }) {
+    this.enablePrettier = enablePrettier;
   }
 
   async generate(ast: t.File, filePath: string): Promise<void> {

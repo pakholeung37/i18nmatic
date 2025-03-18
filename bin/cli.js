@@ -14,7 +14,7 @@ const defaultOptions = {
   locales: ["ja_JP"],
   entry: "src",
   outputDir: "public/locales",
-  prettier: true,
+  enablePrettier: true,
   config: "./auto-i18n.config.json",
 };
 
@@ -36,6 +36,8 @@ program
     };
 
     console.log("🔧 Final Options:", runtimeOptions);
+
+    main(runtimeOptions);
   });
 
 program.parse(process.argv);

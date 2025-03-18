@@ -5,9 +5,23 @@ import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
 
-export async function main() {
-  const loader = new Loader();
-  const generator = new Generator();
+interface Options {
+  runOn: "next";
+  locales: string[];
+  defaultLocale: string;
+  outputDir: string;
+  entry: string;
+  enablePrettier: boolean;
+}
+
+export async function main(options: Options) {
+  const loader = new Loader({
+    entry: options.entry,
+  });
+
+  const generator = new Generator({
+    enablePrettier: options.enablePrettier,
+  });
   const extractedTexts: ExtractedText[] = [];
 
   // 추후 여러 언어 동적 할당
@@ -28,8 +42,8 @@ export async function main() {
       onLoaded: () => {
         generator.generateJson(
           extractedTexts,
-          loader.options.locales,
-          loader.options.outputDir
+          options.locales,
+          options.outputDir
         );
       },
     }
