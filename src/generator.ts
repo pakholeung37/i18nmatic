@@ -22,7 +22,8 @@ export class Generator {
   async generateJson(
     data: ExtractedText[],
     locales: string[],
-    outputDir: string
+    outputDir: string,
+    outputFileName: string
   ): Promise<void> {
     const formattedData = this.formatExtractedText(data);
     const json = JSON.stringify(formattedData, null, 2).replace(
@@ -31,7 +32,7 @@ export class Generator {
     );
 
     locales.forEach((locale) => {
-      const filePath = `${outputDir}/${locale}/common.json`;
+      const filePath = `${outputDir}/${locale}/${outputFileName}`;
       this.writeFile(json, filePath);
     });
   }

@@ -12,6 +12,7 @@ interface Options {
   outputDir: string;
   entry: string;
   enablePrettier: boolean;
+  outputFileName: string;
 }
 
 export async function main(options: Options) {
@@ -53,7 +54,8 @@ export async function main(options: Options) {
         generator.generateJson(
           extractedTexts,
           options.locales,
-          options.outputDir
+          options.outputDir,
+          options.outputFileName
         );
       },
     }

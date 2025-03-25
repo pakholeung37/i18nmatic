@@ -1,6 +1,6 @@
 {
   "name": "auto-transform-i18n",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "A TypeScript library for parsing and traversing Babel AST",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
