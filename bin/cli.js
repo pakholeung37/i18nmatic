@@ -16,6 +16,7 @@ const defaultOptions = {
   outputDir: "public/locales",
   enablePrettier: true,
   config: "./auto-i18n.config.json",
+  outputFileName: "common.json",
 };
 
 program
