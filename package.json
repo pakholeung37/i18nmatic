@@ -1,6 +1,6 @@
 {
   "name": "i18nmatic",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A TypeScript library for parsing and traversing Babel AST",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
