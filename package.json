@@ -12,6 +12,7 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "test": "jest",
+    "prebuild": "rm -rf dist",
     "test:cov": "jest --coverage"
   },
   "repository": {
