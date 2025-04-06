@@ -9,7 +9,7 @@ const { parse } = require("@babel/parser");
 const main = require(path.join(__dirname, "../dist/index.js")).main;
 
 const defaultOptions = {
-  runOn: "next",
+  runType: "next",
   defaultLocale: "ko-KR",
   locales: ["ja_JP"],
   entry: "src",

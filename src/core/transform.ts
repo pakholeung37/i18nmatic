@@ -5,7 +5,8 @@ import * as t from "@babel/types";
 
 export function transform(
   ast: t.File,
-  checkLanguage: (text: string) => boolean
+  checkLanguage: (text: string) => boolean,
+  runType: RunType
 ): {
   ast: t.File;
   isChanged: boolean;
@@ -16,7 +17,7 @@ export function transform(
 
   wrapper.wrap();
 
-  const insertion = new Insertion(hookContextNodes, ast);
+  const insertion = new Insertion(hookContextNodes, ast, runType);
 
   const isChanged = insertion.insert();
 

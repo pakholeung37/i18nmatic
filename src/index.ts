@@ -7,7 +7,7 @@ import { ExtractedText } from "./core/type";
 
 //TODO: 제외 경로 추가, ns 정의
 interface Options {
-  runOn: "next";
+  runType: RunType;
   locales: string[];
   defaultLocale: string;
   outputDir: string;
@@ -17,13 +17,24 @@ interface Options {
 }
 
 export async function main(options: Options) {
+  const {
+    entry,
+    locales,
+    defaultLocale,
+    outputDir,
+    runType,
+    enablePrettier,
+    outputFileName,
+  } = options;
+
   const loader = new Loader({
-    entry: options.entry,
+    entry: entry,
   });
 
   const generator = new Generator({
-    enablePrettier: options.enablePrettier,
+    enablePrettier: enablePrettier,
   });
+
   const extractedTexts: ExtractedText[] = [];
 
   // 추후 여러 언어 동적 할당
@@ -32,7 +43,8 @@ export async function main(options: Options) {
       try {
         const { ast: transformAst, isChanged } = core.transform(
           file.ast,
-          createLanguageCheckFunction("ko")
+          createLanguageCheckFunction("ko"),
+          runType
         );
 
         if (isChanged) {
@@ -54,9 +66,9 @@ export async function main(options: Options) {
       onLoaded: () => {
         generator.generateJson(
           extractedTexts,
-          options.locales,
-          options.outputDir,
-          options.outputFileName
+          locales,
+          outputDir,
+          outputFileName
         );
       },
     }
