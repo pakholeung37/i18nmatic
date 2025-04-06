@@ -5,6 +5,7 @@ import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
 
+//TODO: 제외 경로 추가, ns 정의
 interface Options {
   runOn: "next";
   locales: string[];

@@ -1,11 +1,11 @@
 {
-  "name": "auto-transform-i18n",
-  "version": "0.2.9",
+  "name": "i18nmatic",
+  "version": "0.1.1",
   "description": "A TypeScript library for parsing and traversing Babel AST",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "auto-transform-i18n": "./bin/cli.js"
+    "auto-i18n": "./bin/cli.js"
   },
   "scripts": {
     "start": "node bin/cli.js",
