@@ -10,13 +10,6 @@ const parseCode = (code: string) => {
   });
 };
 
-const gernateCode = (ast: any) => {
-  return generate(ast, {
-    concise: true,
-    jsescOption: { minimal: true },
-  }).code;
-};
-
 describe("extractor", () => {
   it("component", () => {
     const code = `
@@ -31,23 +24,24 @@ function MyComponent() {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "안녕하세요",
       isTWrapped: false,
-      containerName: "MyComponent",
+      containerName: "/MyComponent",
     });
     expect(result[1]).toEqual({
       text: "이미 t()래핑된 문자열",
       isTWrapped: true,
-      containerName: "MyComponent",
+      containerName: "/MyComponent",
     });
     expect(result[2]).toEqual({
       text: "반갑습니다",
       isTWrapped: false,
-      containerName: "MyComponent",
+      containerName: "/MyComponent",
     });
   });
 
@@ -62,13 +56,14 @@ function helperFunction() {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "안녕하세요",
       isTWrapped: false,
-      containerName: "helperFunction",
+      containerName: "/helperFunction",
     });
   });
 
@@ -84,7 +79,8 @@ const user = {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     console.log(result);
@@ -92,12 +88,12 @@ const user = {
     expect(result[0]).toEqual({
       text: "양성훈",
       isTWrapped: false,
-      containerName: "user",
+      containerName: "/user",
     });
     expect(result[1]).toEqual({
       text: "남",
       isTWrapped: false,
-      containerName: "user",
+      containerName: "/user",
     });
   });
 
@@ -112,13 +108,14 @@ const user = {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "안녕!",
       isTWrapped: false,
-      containerName: "greet",
+      containerName: "/greet",
     });
   });
 
@@ -135,13 +132,14 @@ const user = {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "안녕하세요, 클래스!",
       isTWrapped: false,
-      containerName: "",
+      containerName: "/",
     });
   });
 
@@ -156,13 +154,14 @@ const user = {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "반가워요, {{name}}!",
       isTWrapped: false,
-      containerName: "templatedGreeting",
+      containerName: "/templatedGreeting",
     });
   });
 
@@ -178,13 +177,14 @@ const user = {
 
     const result = new Extractor(
       ast,
-      createLanguageCheckFunction("ko")
+      createLanguageCheckFunction("ko"),
+      ""
     ).extract();
 
     expect(result[0]).toEqual({
       text: "양성훈",
       isTWrapped: false,
-      containerName: "users",
+      containerName: "/users",
     });
   });
 });
