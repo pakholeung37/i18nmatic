@@ -129,7 +129,7 @@ function Greeting() {
 | --- | --- | --- | --- |
 | `runType` | `"next"` \| `"react"` | `"next"` | 사용 중인 프레임워크 유형을 지정합니다. |
 | `entry` | `string` | `"src"` | Root directory for your source code. |
-| `locales` | `string[]` | `[]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
+| `locales` | `string[]` | `["ja_JP"]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
 | `outputDir` | `string` | `"public/locales"` | Directory for generated translation JSON files. |
 | `enablePrettier` | `boolean` | `true` | Format output using Prettier. |
 | `outputFileName` | `string` | `"common.json"` | Filename for generated translation files. |
