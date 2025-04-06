@@ -736,3 +736,60 @@ describe("Insertion", () => {
     expect(matches!.length).toBe(1);
   });
 });
+
+const parseCode = (code: string) => {
+  return parser.parse(code, {
+    sourceType: "module",
+    plugins: ["jsx", "typescript"],
+  });
+};
+
+describe("Template Literal and JSX Attribute Transformation (Chinese)", () => {
+  it("should transform template literals containing Chinese", () => {
+    const code = `
+      function TemplateLiteralComponent({ name }) {
+        return <p>{\`\${name}，你好\`}</p>;
+      }
+    `;
+
+    const ast = parseCode(code);
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("zh")
+    );
+    wrapper.wrapTemplateLiteral();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('t("{{name}}，你好", { "name": name })');
+  });
+
+  it("should transform JSX attributes containing Chinese", () => {
+    const code = `
+      function JSXAttributeComponent() {
+        return <input type="text" placeholder="请输入您的名字" />;
+      }
+    `;
+
+    const ast = parseCode(code);
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("zh")
+    );
+    wrapper.wrapStringLiteral();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('placeholder={t("请输入您的名字")}');
+  });
+});
