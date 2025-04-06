@@ -9,7 +9,6 @@ import { ExtractedText } from "./core/type";
 interface Options {
   runType: RunType;
   locales: string[];
-  defaultLocale: string;
   outputDir: string;
   entry: string;
   enablePrettier: boolean;
@@ -17,15 +16,8 @@ interface Options {
 }
 
 export async function main(options: Options) {
-  const {
-    entry,
-    locales,
-    defaultLocale,
-    outputDir,
-    runType,
-    enablePrettier,
-    outputFileName,
-  } = options;
+  const { entry, locales, outputDir, runType, enablePrettier, outputFileName } =
+    options;
 
   const loader = new Loader({
     entry: entry,

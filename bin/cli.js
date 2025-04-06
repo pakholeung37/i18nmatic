@@ -10,7 +10,6 @@ const main = require(path.join(__dirname, "../dist/index.js")).main;
 
 const defaultOptions = {
   runType: "next",
-  defaultLocale: "ko-KR",
   locales: ["ja_JP"],
   entry: "src",
   outputDir: "public/locales",
