@@ -744,7 +744,7 @@ const parseCode = (code: string) => {
   });
 };
 
-describe("Template Literal and JSX Attribute Transformation (Chinese)", () => {
+describe("Template Literal and JSX Attribute Transformation (global)", () => {
   it("should transform template literals containing Chinese", () => {
     const code = `
       function TemplateLiteralComponent({ name }) {
@@ -791,5 +791,53 @@ describe("Template Literal and JSX Attribute Transformation (Chinese)", () => {
     }).code;
 
     expect(output).toContain('placeholder={t("请输入您的名字")}');
+  });
+
+  it("should transform template literals containing English", () => {
+    const code = `
+      function TemplateLiteralComponent({ name }) {
+        return <p>{\`\${name}, hello\`}</p>;
+      }
+    `;
+
+    const ast = parseCode(code);
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("en")
+    );
+    wrapper.wrapTemplateLiteral();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('t("{{name}}, hello", { "name": name })');
+  });
+
+  it("should transform JSX attributes containing English", () => {
+    const code = `
+      function JSXAttributeComponent() {
+        return <input type="text" placeholder="Please enter your name" />;
+      }
+    `;
+
+    const ast = parseCode(code);
+    const hookContextNodes = core.findHookContextNode(ast);
+
+    const wrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("en")
+    );
+    wrapper.wrapStringLiteral();
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code;
+
+    expect(output).toContain('placeholder={t("Please enter your name")}');
   });
 });
