@@ -1,8 +1,8 @@
 import { NodePath } from "@babel/traverse";
 import { HookContextNode } from "./type";
 import * as t from "@babel/types";
-import { RunType } from "./type";
 import { find, has } from "../common";
+import { RunType } from "../type";
 
 function getImportModuleName(runType: RunType) {
   switch (runType) {

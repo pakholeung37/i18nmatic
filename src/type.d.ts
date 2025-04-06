@@ -1,1 +1,0 @@
-type RunType = "next" | "react";

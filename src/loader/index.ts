@@ -16,30 +16,29 @@ export class Loader {
     this.entry = entry;
   }
 
-  load(
+  async load(
     callback: (file: File) => void,
-    { onLoaded }: { onLoaded?: () => void }
-  ) {
+    options?: { onLoaded?: () => void }
+  ): Promise<void> {
+    const { onLoaded } = options || {};
     const filePaths = this.getTargetFilePaths();
 
-    const promises: Promise<void>[] = [];
-    filePaths.forEach((filePath) => {
-      promises.push(
-        this.loadSourceFile(filePath)
-          .then((file) => {
-            // 파일에 전달받은 콜백 수행
-            callback({ ast: file, filepath: filePath });
-          })
-          .catch((error: unknown) => {
-            handleParseError(error, filePath);
-          })
-      );
-    });
+    try {
+      const filePromises = filePaths.map(async (filePath) => {
+        try {
+          const file = await this.loadSourceFile(filePath);
+          callback({ ast: file, filepath: filePath });
+        } catch (error) {
+          handleParseError(error, filePath);
+        }
+      });
 
-    Promise.all(promises).then(() => {
+      await Promise.all(filePromises);
       onLoaded?.();
-    });
-    return promises;
+    } catch (error) {
+      console.error("Failed to load files:", error);
+      throw error;
+    }
   }
 
   private getTargetFilePaths(): string[] {
