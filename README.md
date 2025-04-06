@@ -23,7 +23,8 @@ React and Next.js projects typically use libraries such as `react-i18next` or `n
 
 ```bash
 npm install -D i18nmatic
-
+# or
+yarn add -D i18nmatic
 ```
 
 ## Usage
@@ -127,13 +128,13 @@ function Greeting() {
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `runType` | `"next" | "react"` | `"next"` | Framework type used in your project. |
+| `runType` | `"next"` \| `"react"` | `"next"` | 사용 중인 프레임워크 유형을 지정합니다. |
 | `entry` | `string` | `"src"` | Root directory for your source code. |
-| `locales` | `string[]` | `[]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
+| `locales` | `string[]` | `["ja_JP"]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
 | `outputDir` | `string` | `"public/locales"` | Directory for generated translation JSON files. |
 | `enablePrettier` | `boolean` | `true` | Format output using Prettier. |
 | `outputFileName` | `string` | `"common.json"` | Filename for generated translation files. |
-| `keyLanguage` | `"ko" | "en" | "ja" | "zh"` | `"ko"` | Base language for extracting translation keys. |
+| `keyLanguage` | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"` | 번역 키를 추출할 기준 언어입니다. |
 
 ## Testing
 
