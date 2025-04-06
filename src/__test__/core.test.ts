@@ -1,6 +1,6 @@
 import * as parser from "@babel/parser";
 import traverse from "@babel/traverse";
-import { createLanguageCheckFunction } from "../common";
+import { createLanguageCheckFunction } from "../common/language";
 import * as demoCode from "./demo";
 import * as core from "../core";
 import generate from "@babel/generator";

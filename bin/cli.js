@@ -16,6 +16,7 @@ const defaultOptions = {
   enablePrettier: true,
   config: "./auto-i18n.config.json",
   outputFileName: "common.json",
+  keyLanguage: "ja",
 };
 
 program

@@ -1,7 +1,7 @@
 import generate from "@babel/generator";
 import * as parser from "@babel/parser";
 import { Extractor } from "../extractor";
-import { createLanguageCheckFunction } from "../common";
+import { createLanguageCheckFunction } from "../common/language";
 
 const parseCode = (code: string) => {
   return parser.parse(code, {

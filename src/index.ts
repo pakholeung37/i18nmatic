@@ -1,14 +1,16 @@
 import { Loader } from "./loader";
 import * as core from "./core";
-import { createLanguageCheckFunction, handleParseError } from "./common";
+import { handleParseError } from "./common";
+import { createLanguageCheckFunction } from "./common/language";
 import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
-import { RunType } from "./type";
+import { RunType, KeyLanguage } from "./type";
 
 //TODO: 제외 경로 추가, ns 정의
 interface Options {
   runType: RunType;
+  keyLanguage: KeyLanguage;
   locales: string[];
   outputDir: string;
   entry: string;
@@ -17,8 +19,15 @@ interface Options {
 }
 
 export async function main(options: Options) {
-  const { entry, locales, outputDir, runType, enablePrettier, outputFileName } =
-    options;
+  const {
+    entry,
+    locales,
+    outputDir,
+    runType,
+    enablePrettier,
+    outputFileName,
+    keyLanguage,
+  } = options;
 
   const loader = new Loader({
     entry: entry,
@@ -35,7 +44,7 @@ export async function main(options: Options) {
     try {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
-        createLanguageCheckFunction("ko"),
+        createLanguageCheckFunction(keyLanguage),
         runType
       );
 
@@ -46,7 +55,7 @@ export async function main(options: Options) {
       extractedTexts.push(
         ...new Extractor(
           file.ast,
-          createLanguageCheckFunction("ko"),
+          createLanguageCheckFunction(keyLanguage),
           file.filepath
         ).extract()
       );
