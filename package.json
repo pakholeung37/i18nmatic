@@ -18,7 +18,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github-personal:seonghunYang/i18nmatic.git"
+    "url": "https://github.com/seonghunYang/i18nmatic.git"
+  },
+  "homepage": "https://github.com/seonghunYang/i18nmatic#readme",
+  "bugs": {
+    "url": "https://github.com/seonghunYang/i18nmatic/issues"
   },
   "keywords": [
     "i18n",
