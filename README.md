@@ -23,7 +23,8 @@ React and Next.js projects typically use libraries such as `react-i18next` or `n
 
 ```bash
 npm install -D i18nmatic
-
+# or
+yarn add -D i18nmatic
 ```
 
 ## Usage
