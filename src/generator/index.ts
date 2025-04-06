@@ -2,8 +2,8 @@ import generate from "@babel/generator";
 import * as t from "@babel/types";
 import * as fs from "fs";
 import * as prettier from "prettier";
-import { ExtractedText } from "./core/type";
 import * as path from "path";
+import { ExtractedText } from "../core/type";
 
 export class Generator {
   private enablePrettier: boolean;

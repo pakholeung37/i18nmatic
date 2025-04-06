@@ -1,7 +1,7 @@
 import * as t from "@babel/types";
 import traverse, { NodePath } from "@babel/traverse";
-import { getTemplateLiteralKey } from "./common";
-import { ExtractedText } from "./core/type";
+import { getTemplateLiteralKey } from "../common";
+import { ExtractedText } from "../core/type";
 
 export class Extractor {
   private results: ExtractedText[] = [];
