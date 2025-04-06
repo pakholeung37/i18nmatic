@@ -30,7 +30,7 @@ npm install -D i18nmatic
 
 ### 1. Create a configuration file
 
-**Create an `auto-i18n.config.json` file in your project's root directory** ([Click here to see the default configuration options](https://www.notion.so/1cd18dcd10ba80a89fdafcba76c1ff3c?pvs=21)):
+**Create an `auto-i18n.config.json` file in your project's root directory** ([Click here to see the default configuration options](https://github.com/seonghunYang/i18nmatic?tab=readme-ov-file#-configuration-auto-i18nconfigjson)):
 
 ```json
 {
