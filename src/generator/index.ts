@@ -59,7 +59,19 @@ export class Generator {
       return code;
     }
 
-    const config = (await prettier.resolveConfig(process.cwd())) || {};
+    const configPath = await prettier.resolveConfigFile();
+    if (!configPath) {
+      console.log("Prettier config file not found");
+      return await prettier.format(code, {
+        parser: "babel-ts",
+      });
+    }
+
+    const config =
+      (await prettier.resolveConfig(process.cwd(), {
+        editorconfig: true,
+        config: configPath,
+      })) || {};
 
     // format에 오류가 발생할 수 있음
     return await prettier.format(code, {
