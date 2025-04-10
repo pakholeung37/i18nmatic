@@ -157,6 +157,66 @@ function JSXAttributeComponent() {
   "안녕하세요 여기에 입력해 주세요": "안녕하세요 여기에 입력해 주세요"
 }
 ```
+## When Automatic Wrapping is Difficult
+
+In certain scenarios, as shown below, it's difficult for the tool to automatically determine whether the attributes should be wrapped with the `t()` function, due to the lack of explicit context within the code itself.
+
+However, internationalization is still essential in these cases. To handle such scenarios, **i18nmatic** detects these texts, extracts them into JSON files, and includes a comment with the original source file path. This makes it easy for developers to manually locate and wrap the keys with `t()`.
+
+### **Example Input Code**
+
+```jsx
+// src/components/example.tsx
+
+const ITEMS = [
+  {
+    id: 1,
+    title: '안녕하세요',
+    description: '반갑습니다.',
+  },
+  {
+    id: 2,
+    title: '잘부탁드립니다.',
+    description: '고맙습니다.',
+  },
+  {
+    id: 3,
+    title: '미안합니다.',
+    description: '감사합니다.',
+  },
+];
+
+function Example() {
+  return (
+    <>
+      {ITEMS.map((item) => (
+        <div key={item.title}>
+          <h1>{item.title}</h1>
+          <p>{item.description}</p>
+        </div>
+      ))}
+    </>
+  );
+}
+```
+
+### **Extracted JSON File Example (`public/locales/{locale}/common.json`)**
+
+```json
+{
+  ...
+
+  "__comment_1": "src/components/example.tsx/ITEMS",
+  "반갑습니다.": "반갑습니다.",
+  "고맙습니다.": "고맙습니다.",
+  "잘부탁드립니다.": "잘부탁드립니다.",
+  "감사합니다.": "감사합니다.",
+  "미안합니다.": "미안합니다.",
+
+  ...
+}
+```
+
 ## Supported Patterns
 
 - **JSX text**: `<div>안녕하세요</div>` → `<div>{t("안녕하세요")}</div>`
