@@ -1,6 +1,6 @@
 {
   "name": "i18nmatic",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "CLI tool for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
