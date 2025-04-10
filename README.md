@@ -15,7 +15,7 @@ React and Next.js projects typically use libraries such as `react-i18next` or `n
 ## Key Features
 
 - **Automatic code transformation**: Detects all text requiring internationalization in JSX, string literals, template literals, etc. Automatically extracts translation keys based on the selected language, wraps them with `t()`, and injects the necessary imports.
-- **Translation key extraction**: Automatically generates translation keys into JSON files, simplifying translation file management.
+- **Translation key extraction**: Extracts all text requiring translation—even if not yet wrapped with t()—and outputs keys with source file paths into JSON, enabling efficient management and traceability.
 - **Multilingual support**: Supports major languages including Korean, English, Japanese, and Chinese.
 - **React/Next.js compatibility**: Fully compatible with `react-i18next` and `next-i18next`.
 
