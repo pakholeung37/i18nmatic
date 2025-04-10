@@ -12,6 +12,12 @@ React and Next.js projects typically use libraries such as `react-i18next` or `n
 
 **i18nmatic** automates these repetitive tasks, enabling developers to focus on higher-level problems and empowering your business to quickly validate ideas in the global market.
 
+## 📺 Demo
+
+[![Watch the demo](https://github.com/user-attachments/assets/11c3a36b-fb36-4c19-b0f9-c85596269a2a/demo-thumbnail.gif)](https://github.com/user-attachments/assets/11c3a36b-fb36-4c19-b0f9-c85596269a2a)
+
+See how quickly `i18nmatic` transforms your code and extracts translation keys.
+
 ## Key Features
 
 - **Automatic code transformation**: Detects all text requiring internationalization in JSX, string literals, template literals, etc. Automatically extracts translation keys based on the selected language, wraps them with `t()`, and injects the necessary imports.
