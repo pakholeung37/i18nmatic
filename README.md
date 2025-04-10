@@ -116,6 +116,47 @@ function Greeting() {
 }
 ```
 
+## Examples
+
+### **Input Code (Before Transformation)**
+
+```jsx
+// 템플릿 리터럴
+function TemplateLiteralComponent({ name }) {
+  return <p>{`${name}님 안녕하세요`}</p>;
+}
+
+// JSX 속성
+function JSXAttributeComponent() {
+  return <input type="text" placeholder="안녕하세요 여기에 입력해 주세요" />;
+}
+```
+
+### **Transformed Code (After Transformation)**
+
+```jsx
+import { useTranslation } from "next-i18next";
+
+function TemplateLiteralComponent({ name }) {
+  const { t } = useTranslation();
+  return <p>{t("{{name}}님 안녕하세요", { name })}</p>;
+}
+
+function JSXAttributeComponent() {
+  const { t } = useTranslation();
+  return <input type="text" placeholder={t("안녕하세요 여기에 입력해 주세요")} />;
+}
+
+```
+
+### **Extracted JSON File (`public/locales/{locale}/common.json`)**
+
+```json
+{
+  "{{name}}님 안녕하세요": "{{name}}님 안녕하세요",
+  "안녕하세요 여기에 입력해 주세요": "안녕하세요 여기에 입력해 주세요"
+}
+```
 ## Supported Patterns
 
 - **JSX text**: `<div>안녕하세요</div>` → `<div>{t("안녕하세요")}</div>`
@@ -128,13 +169,13 @@ function Greeting() {
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `runType` | `"next"` \| `"react"` | `"next"` | 사용 중인 프레임워크 유형을 지정합니다. |
+| `runType` | `"next"` \| `"react"` | `"next"` | Framework type used in your project. |
 | `entry` | `string` | `"src"` | Root directory for your source code. |
 | `locales` | `string[]` | `["ja_JP"]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
 | `outputDir` | `string` | `"public/locales"` | Directory for generated translation JSON files. |
 | `enablePrettier` | `boolean` | `true` | Format output using Prettier. |
 | `outputFileName` | `string` | `"common.json"` | Filename for generated translation files. |
-| `keyLanguage` | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"` | 번역 키를 추출할 기준 언어입니다. |
+| `keyLanguage` | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"` | Base language for extracting translation keys. |
 
 ## Testing
 
