@@ -4,11 +4,20 @@ import * as fs from "fs";
 import * as prettier from "prettier";
 import * as path from "path";
 import { ExtractedText } from "../core/type";
+import { OutputTranslation } from "../type";
 
 export class Generator {
   private enablePrettier: boolean;
-  constructor({ enablePrettier }: { enablePrettier: boolean }) {
+  private dry: boolean | undefined;
+  constructor({
+    enablePrettier,
+    dry,
+  }: {
+    enablePrettier: boolean;
+    dry?: boolean;
+  }) {
     this.enablePrettier = enablePrettier;
+    this.dry = dry;
   }
 
   async generate(ast: t.File, filePath: string): Promise<void> {
@@ -23,17 +32,29 @@ export class Generator {
     data: ExtractedText[],
     locales: string[],
     outputDir: string,
-    outputFileName: string
+    outputFileName: string,
+    outputTranslation: OutputTranslation
   ): Promise<void> {
     const formattedData = this.formatExtractedText(data);
-    const json = JSON.stringify(formattedData, null, 2).replace(
-      /(\s+)"(__comment_\d+)"/g,
-      '\n$1"$2"'
-    );
 
     locales.forEach((locale) => {
       const filePath = `${outputDir}/${locale}/${outputFileName}`;
-      this.writeFile(json, filePath);
+
+      let finalData = formattedData;
+
+      if (outputTranslation === "merge") {
+        // merge 模式：读取现有文件并合并
+        finalData = this.mergeWithExistingJson(filePath, formattedData);
+      }
+
+      if (outputTranslation !== "dry") {
+        // 只有在非 dry 模式下才写入文件
+        const json = JSON.stringify(finalData, null, 2).replace(
+          /(\s+)"(__comment_\d+)"/g,
+          '\n$1"$2"'
+        );
+        this.writeFile(json, filePath);
+      }
     });
   }
 
@@ -51,7 +72,7 @@ export class Generator {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    fs.writeFileSync(filePath, content);
+    fs.writeFileSync(this.dry ? filePath + ".snap" : filePath, content);
   }
 
   private async formatCode(code: string): Promise<string> {
@@ -127,5 +148,29 @@ export class Generator {
       });
     });
     return result;
+  }
+
+  private mergeWithExistingJson(
+    filePath: string,
+    newData: Record<string, string>
+  ): Record<string, string> {
+    try {
+      // 尝试读取现有文件
+      if (fs.existsSync(filePath)) {
+        const existingContent = fs.readFileSync(filePath, "utf8");
+        const existingData = JSON.parse(existingContent);
+
+        // 合并数据：新数据会覆盖现有数据中的相同 key
+        return { ...newData, ...existingData };
+      }
+    } catch (error) {
+      console.warn(
+        `Failed to read existing file ${filePath}, creating new file:`,
+        error
+      );
+    }
+
+    // 如果文件不存在或读取失败，返回新数据
+    return newData;
   }
 }

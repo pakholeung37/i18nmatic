@@ -5,7 +5,7 @@ import { createLanguageCheckFunction } from "./common/language";
 import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
-import { RunType, KeyLanguage } from "./type";
+import { RunType, KeyLanguage, OutputTranslation } from "./type";
 
 //TODO: 제외 경로 추가, ns 정의
 interface Options {
@@ -13,28 +13,36 @@ interface Options {
   keyLanguage: KeyLanguage;
   locales: string[];
   outputDir: string;
-  entry: string;
+  glob: string | string[];
+  ext?: string[];
   enablePrettier: boolean;
   outputFileName: string;
+  dry: boolean;
+  outputTranslation: OutputTranslation;
 }
 
 export async function main(options: Options) {
   const {
-    entry,
+    glob,
+    ext,
     locales,
     outputDir,
     runType,
     enablePrettier,
     outputFileName,
     keyLanguage,
+    dry,
+    outputTranslation,
   } = options;
 
   const loader = new Loader({
-    entry: entry,
+    glob: glob,
+    ext: ext,
   });
 
   const generator = new Generator({
     enablePrettier: enablePrettier,
+    dry,
   });
 
   const extractedTexts: ExtractedText[] = [];
@@ -64,5 +72,5 @@ export async function main(options: Options) {
     }
   });
 
-  generator.generateJson(extractedTexts, locales, outputDir, outputFileName);
+  generator.generateJson(extractedTexts, locales, outputDir, outputFileName, outputTranslation);
 }

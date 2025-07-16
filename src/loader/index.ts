@@ -10,10 +10,18 @@ interface File {
 }
 
 export class Loader {
-  private entry: string;
+  private glob: string | string[];
+  private ext: string[];
 
-  constructor({ entry }: { entry: string }) {
-    this.entry = entry;
+  constructor({ 
+    glob, 
+    ext = ['js', 'jsx', 'ts', 'tsx'] 
+  }: { 
+    glob: string | string[]; 
+    ext?: string[] 
+  }) {
+    this.glob = glob;
+    this.ext = ext;
   }
 
   async load(
@@ -42,7 +50,30 @@ export class Loader {
   }
 
   private getTargetFilePaths(): string[] {
-    return globSync(`${this.entry}/**/*.{js,jsx,ts,tsx}`);
+    const extPattern = `{${this.ext.join(',')}}`;
+    const globPatterns = Array.isArray(this.glob) ? this.glob : [this.glob];
+    
+    const allPaths: string[] = [];
+    
+    for (const pattern of globPatterns) {
+      // 如果 pattern 已经包含文件扩展名，直接使用
+      if (pattern.includes('.')) {
+        allPaths.push(...globSync(pattern));
+      } else {
+        // 如果 pattern 不包含扩展名，添加扩展名匹配
+        if (pattern.includes('*') || pattern.includes('?') || pattern.includes('[')) {
+          // 如果是 glob 模式，直接使用并添加扩展名
+          allPaths.push(...globSync(`${pattern}.${extPattern}`));
+          allPaths.push(...globSync(`${pattern}/**/*.${extPattern}`));
+        } else {
+          // 如果是目录路径，在目录下查找文件
+          allPaths.push(...globSync(`${pattern}/**/*.${extPattern}`));
+        }
+      }
+    }
+    
+    // 去重并返回
+    return [...new Set(allPaths)];
   }
 
   private async loadSourceFile(filePath: string): Promise<t.File> {

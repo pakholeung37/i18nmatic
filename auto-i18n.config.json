@@ -1,3 +1,12 @@
 {
-  "runType": "next"
+  "runType": "next",
+  "locales": ["en_US"],
+  "glob": "samples/**/*",
+  "ext": ["js", "jsx", "ts", "tsx"],
+  "dry": true,
+  "outputDir": "public/locales",
+  "enablePrettier": true,
+  "outputFileName": "en_US.json",
+  "keyLanguage": "ch",
+  "outputTranslation": "create"
 }
