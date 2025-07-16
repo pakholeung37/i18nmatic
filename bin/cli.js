@@ -10,11 +10,10 @@ const main = require(path.join(__dirname, "../dist/index.js")).main;
 
 const defaultOptions = {
   runType: "next",
-  locales: ["ja_JP"],
-  entry: "src",
+  locales: ["en_US"],
+  entry: "samples",
   outputDir: "public/locales",
   enablePrettier: true,
-  config: "./auto-i18n.config.json",
   outputFileName: "common.json",
   keyLanguage: "ko",
 };
@@ -22,7 +21,9 @@ const defaultOptions = {
 program
   .option("-c, --config <configFile>", "Configuration file (JSON)")
   .action((options) => {
-    const configPath = path.resolve(options.config || defaultOptions.config);
+    const configPath = path.resolve(
+      options.config || "./auto-i18n.config.json"
+    );
 
     if (!fs.existsSync(configPath)) {
       console.error(`Config file not found: ${configPath}`);
