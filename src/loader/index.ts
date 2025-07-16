@@ -10,17 +10,21 @@ interface File {
 }
 
 export class Loader {
-  private glob: string | string[];
+  private include: string | string[];
+  private exclude: string | string[];
   private ext: string[];
 
   constructor({ 
-    glob, 
+    include, 
+    exclude = [],
     ext = ['js', 'jsx', 'ts', 'tsx'] 
   }: { 
-    glob: string | string[]; 
+    include: string | string[]; 
+    exclude?: string | string[];
     ext?: string[] 
   }) {
-    this.glob = glob;
+    this.include = include;
+    this.exclude = exclude;
     this.ext = ext;
   }
 
@@ -51,13 +55,19 @@ export class Loader {
 
   private getTargetFilePaths(): string[] {
     const extPattern = `{${this.ext.join(',')}}`;
-    const globPatterns = Array.isArray(this.glob) ? this.glob : [this.glob];
+    const includePatterns = Array.isArray(this.include) ? this.include : [this.include];
+    const excludePatterns = Array.isArray(this.exclude) ? this.exclude : [this.exclude];
     
     const allPaths: string[] = [];
     
-    for (const pattern of globPatterns) {
-      // 如果 pattern 已经包含文件扩展名，直接使用
-      if (pattern.includes('.')) {
+    for (const pattern of includePatterns) {
+      // 检查 pattern 是否已经包含文件扩展名（以支持的扩展名结尾）
+      const hasFileExtension = this.ext.some(ext => 
+        pattern.endsWith(`.${ext}`) || pattern.includes(`*.${ext}`)
+      );
+      
+      if (hasFileExtension) {
+        // 如果已经包含文件扩展名，直接使用
         allPaths.push(...globSync(pattern));
       } else {
         // 如果 pattern 不包含扩展名，添加扩展名匹配
@@ -71,9 +81,25 @@ export class Loader {
         }
       }
     }
+    let result = [...new Set(allPaths)];
+    // 应用排除模式
+    if (excludePatterns.length > 0 && excludePatterns[0] !== '') {
+      const excludedPaths = new Set<string>();
+      
+      for (const excludePattern of excludePatterns) {
+        if (excludePattern) {
+          const excluded = globSync(excludePattern);
+          excluded.forEach(path => excludedPaths.add(path));
+        }
+      }
+      
+      // 过滤掉被排除的文件
+      result = result.filter(path => !excludedPaths.has(path));
+    }
     
+    console.log(`Found ${result.length} files matching patterns: ${includePatterns.join(', ')}`);
     // 去重并返回
-    return [...new Set(allPaths)];
+    return result;
   }
 
   private async loadSourceFile(filePath: string): Promise<t.File> {

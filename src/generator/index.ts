@@ -33,9 +33,10 @@ export class Generator {
     locales: string[],
     outputDir: string,
     outputFileName: string,
-    outputTranslation: OutputTranslation
+    outputTranslation: OutputTranslation,
+    comment: boolean = false
   ): Promise<void> {
-    const formattedData = this.formatExtractedText(data);
+    const formattedData = this.formatExtractedText(data, comment);
 
     locales.forEach((locale) => {
       const filePath = `${outputDir}/${locale}/${outputFileName}`;
@@ -101,7 +102,7 @@ export class Generator {
     });
   }
 
-  private formatExtractedText(data: ExtractedText[]): Record<string, string> {
+  private formatExtractedText(data: ExtractedText[], comment: boolean = false): Record<string, string> {
     // trwapper 분리
 
     const twrappedTexts = data.filter((item) => item.isTWrapped);
@@ -122,7 +123,7 @@ export class Generator {
 
     return {
       ...this.plainJson(twrappedTexts),
-      ...this.groupToPlainJson(groupedTexts),
+      ...this.groupToPlainJson(groupedTexts, comment),
     };
   }
 
@@ -137,12 +138,15 @@ export class Generator {
   }
 
   private groupToPlainJson(
-    data: Record<string, ExtractedText[]>
+    data: Record<string, ExtractedText[]>,
+    comment: boolean = false
   ): Record<string, string> {
     const result: Record<string, string> = {};
 
     Object.keys(data).forEach((key, index) => {
-      result[`__comment_${index}`] = key;
+      if (comment) {
+        result[`__comment_${index}`] = key;
+      }
       data[key].forEach((item) => {
         result[item.text] = item.text;
       });

@@ -5,19 +5,6 @@ const path = require("path");
 
 const main = require(path.join(__dirname, "../dist/index.js")).main;
 
-const defaultOptions = {
-  runType: "next",
-  locales: ["en_US"],
-  glob: "samples",
-  ext: ["js", "jsx", "ts", "tsx"],
-  dry: false,
-  outputDir: "public/locales",
-  enablePrettier: true,
-  keyLanguage: "ko",
-  outputFileName: "en_US.json",
-  outputTranslation: "create",
-};
-
 program
   .option("-c, --config <configFile>", "Configuration file (JSON)")
   .action((options) => {
@@ -33,7 +20,6 @@ program
     const configFileOptions = JSON.parse(fs.readFileSync(configPath));
 
     const runtimeOptions = {
-      ...defaultOptions,
       ...configFileOptions,
     };
 

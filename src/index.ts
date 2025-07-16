@@ -13,17 +13,35 @@ interface Options {
   keyLanguage: KeyLanguage;
   locales: string[];
   outputDir: string;
-  glob: string | string[];
+  include: string | string[];
+  exclude?: string | string[];
   ext?: string[];
   enablePrettier: boolean;
   outputFileName: string;
   dry: boolean;
   outputTranslation: OutputTranslation;
+  comment?: boolean;
 }
+
+const defaultOptions: Options = {
+  runType: "next",
+  locales: ["en_US"],
+  include: "samples",
+  exclude: ["node_modules", "dist", "build", "test"],
+  ext: ["js", "jsx", "ts", "tsx"],
+  dry: false,
+  outputDir: "public/locales",
+  enablePrettier: true,
+  keyLanguage: "ko",
+  outputFileName: "en_US.json",
+  outputTranslation: "create",
+  comment: false,
+};
 
 export async function main(options: Options) {
   const {
-    glob,
+    include,
+    exclude,
     ext,
     locales,
     outputDir,
@@ -33,10 +51,12 @@ export async function main(options: Options) {
     keyLanguage,
     dry,
     outputTranslation,
-  } = options;
+    comment,
+  } = { ...defaultOptions, ...options };
 
   const loader = new Loader({
-    glob: glob,
+    include: include,
+    exclude: exclude,
     ext: ext,
   });
 
@@ -49,6 +69,7 @@ export async function main(options: Options) {
 
   // 추후 여러 언어 동적 할당
   await loader.load((file) => {
+    console.log(`Processing file: ${file.filepath}`);
     try {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
@@ -72,5 +93,12 @@ export async function main(options: Options) {
     }
   });
 
-  generator.generateJson(extractedTexts, locales, outputDir, outputFileName, outputTranslation);
+  generator.generateJson(
+    extractedTexts,
+    locales,
+    outputDir,
+    outputFileName,
+    outputTranslation,
+    comment
+  );
 }
