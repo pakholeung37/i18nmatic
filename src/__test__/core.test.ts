@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import * as parser from "@babel/parser";
 import traverse from "@babel/traverse";
 import { createLanguageCheckFunction } from "../common/language";

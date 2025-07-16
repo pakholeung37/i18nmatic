@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import generate from "@babel/generator";
 import * as parser from "@babel/parser";
 import { Extractor } from "../extractor";
