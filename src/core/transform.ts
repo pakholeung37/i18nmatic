@@ -1,4 +1,3 @@
-import { RunType } from "../type";
 import { findHookContextNode } from "./finder";
 import { Insertion } from "./insertion";
 import { TWrapper } from "./twrapper";
@@ -7,7 +6,7 @@ import * as t from "@babel/types";
 export function transform(
   ast: t.File,
   checkLanguage: (text: string) => boolean,
-  runType: RunType
+  importFromName: string = "react-i18next"
 ): {
   ast: t.File;
   isChanged: boolean;
@@ -18,7 +17,7 @@ export function transform(
 
   wrapper.wrap();
 
-  const insertion = new Insertion(hookContextNodes, ast, runType);
+  const insertion = new Insertion(hookContextNodes, ast, importFromName);
 
   const isChanged = insertion.insert();
 

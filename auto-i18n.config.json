@@ -1,4 +1,6 @@
 {
+  "importFromName": "@terminus/t-console-framework",
+  "defaultTranslation": "insert your translation here",
   "locales": ["en_US"],
   "include": ["samples"],
   "exclude": ["palin.tsx"],

@@ -5,11 +5,11 @@ import { createLanguageCheckFunction } from "./common/language";
 import { Generator } from "./generator";
 import { Extractor } from "./extractor";
 import { ExtractedText } from "./core/type";
-import { RunType, KeyLanguage, OutputTranslation } from "./type";
+import { KeyLanguage, OutputTranslation } from "./type";
 
 //TODO: 제외 경로 추가, ns 정의
 interface Options {
-  runType: RunType;
+  importFromName?: string;
   keyLanguage: KeyLanguage;
   locales: string[];
   outputDir: string;
@@ -21,10 +21,11 @@ interface Options {
   dry: boolean;
   outputTranslation: OutputTranslation;
   comment?: boolean;
+  defaultTranslation?: string;
 }
 
 const defaultOptions: Options = {
-  runType: "next",
+  importFromName: "react-i18next",
   locales: ["en_US"],
   include: "samples",
   exclude: ["node_modules", "dist", "build", "test"],
@@ -36,6 +37,7 @@ const defaultOptions: Options = {
   outputFileName: "en_US.json",
   outputTranslation: "create",
   comment: false,
+  defaultTranslation: "",
 };
 
 export async function main(options: Options) {
@@ -45,13 +47,14 @@ export async function main(options: Options) {
     ext,
     locales,
     outputDir,
-    runType,
+    importFromName,
     enablePrettier,
     outputFileName,
     keyLanguage,
     dry,
     outputTranslation,
     comment,
+    defaultTranslation,
   } = { ...defaultOptions, ...options };
 
   const loader = new Loader({
@@ -74,7 +77,7 @@ export async function main(options: Options) {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
         createLanguageCheckFunction(keyLanguage),
-        runType
+        importFromName || "react-i18next"
       );
 
       if (isChanged) {
@@ -99,6 +102,7 @@ export async function main(options: Options) {
     outputDir,
     outputFileName,
     outputTranslation,
-    comment
+    comment,
+    defaultTranslation
   );
 }

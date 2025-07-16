@@ -34,9 +34,14 @@ export class Generator {
     outputDir: string,
     outputFileName: string,
     outputTranslation: OutputTranslation,
-    comment: boolean = false
+    comment: boolean = false,
+    defaultTranslation: string = ""
   ): Promise<void> {
-    const formattedData = this.formatExtractedText(data, comment);
+    const formattedData = this.formatExtractedText(
+      data,
+      comment,
+      defaultTranslation
+    );
 
     locales.forEach((locale) => {
       const filePath = `${outputDir}/${locale}/${outputFileName}`;
@@ -72,8 +77,12 @@ export class Generator {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-
-    fs.writeFileSync(this.dry ? filePath + ".snap" : filePath, content);
+    if (!this.dry) {
+      // 如果是 dry 模式 不输出
+      fs.writeFileSync(filePath, content);
+    } else {
+      fs.writeFileSync(filePath + ".snap", content);
+    }
   }
 
   private async formatCode(code: string): Promise<string> {
@@ -102,7 +111,11 @@ export class Generator {
     });
   }
 
-  private formatExtractedText(data: ExtractedText[], comment: boolean = false): Record<string, string> {
+  private formatExtractedText(
+    data: ExtractedText[],
+    comment: boolean = false,
+    defaultTranslation: string = ""
+  ): Record<string, string> {
     // trwapper 분리
 
     const twrappedTexts = data.filter((item) => item.isTWrapped);
@@ -122,16 +135,19 @@ export class Generator {
     // record 형태로 만들기
 
     return {
-      ...this.plainJson(twrappedTexts),
-      ...this.groupToPlainJson(groupedTexts, comment),
+      ...this.plainJson(twrappedTexts, defaultTranslation),
+      ...this.groupToPlainJson(groupedTexts, comment, defaultTranslation),
     };
   }
 
-  private plainJson(data: ExtractedText[]): Record<string, string> {
+  private plainJson(
+    data: ExtractedText[],
+    defaultTranslation: string = ""
+  ): Record<string, string> {
     const result: Record<string, string> = {};
 
     data.forEach((item) => {
-      result[item.text] = item.text;
+      result[item.text] = defaultTranslation;
     });
 
     return result;
@@ -139,7 +155,8 @@ export class Generator {
 
   private groupToPlainJson(
     data: Record<string, ExtractedText[]>,
-    comment: boolean = false
+    comment: boolean = false,
+    defaultTranslation: string = ""
   ): Record<string, string> {
     const result: Record<string, string> = {};
 
@@ -148,7 +165,7 @@ export class Generator {
         result[`__comment_${index}`] = key;
       }
       data[key].forEach((item) => {
-        result[item.text] = item.text;
+        result[item.text] = defaultTranslation;
       });
     });
     return result;

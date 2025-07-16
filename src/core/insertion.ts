@@ -2,27 +2,15 @@ import { NodePath } from "@babel/traverse";
 import { HookContextNode } from "./type";
 import * as t from "@babel/types";
 import { find, has } from "../common";
-import { RunType } from "../type";
-
-function getImportModuleName(runType: RunType) {
-  switch (runType) {
-    case "next":
-      return "next-i18next";
-    case "react":
-      return "react-i18next";
-    default:
-      throw new Error("Run type is not specified");
-  }
-}
 
 export class Insertion {
   private importModuleName: string;
   constructor(
     private readonly paths: NodePath<HookContextNode>[],
     private readonly parsedFileAST: t.File,
-    runType: RunType = "next"
+    importFromName: string = "react-i18next"
   ) {
-    this.importModuleName = getImportModuleName(runType);
+    this.importModuleName = importFromName;
   }
 
   insert() {
