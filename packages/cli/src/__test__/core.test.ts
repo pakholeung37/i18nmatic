@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest'
-import * as parser from '@babel/parser'
-import traverse from '@babel/traverse'
-import { createLanguageCheckFunction } from '../common/language'
-import * as demoCode from './demo'
-import * as core from '../core'
-import generate from '@babel/generator'
+import { describe, expect, it } from "vitest"
+import * as parser from "@babel/parser"
+import traverse from "@babel/traverse"
+import { createLanguageCheckFunction } from "../common/language"
+import * as demoCode from "./demo"
+import * as core from "../core"
+import generate from "@babel/generator"
 
-describe('isFunctionalComponent', () => {
+describe("isFunctionalComponent", () => {
   const testCases = [
     { code: demoCode.componentDeclaration, expected: true },
     { code: demoCode.componentExpression, expected: true },
@@ -20,8 +20,8 @@ describe('isFunctionalComponent', () => {
   testCases.forEach(({ code, expected }, index) => {
     it(`should return ${expected} for test case ${index + 1}`, () => {
       const ast = parser.parse(code, {
-        sourceType: 'module',
-        plugins: ['jsx'],
+        sourceType: "module",
+        plugins: ["jsx"],
       })
       traverse(ast, {
         FunctionDeclaration(path) {
@@ -38,7 +38,7 @@ describe('isFunctionalComponent', () => {
   })
 })
 
-describe('isHook', () => {
+describe("isHook", () => {
   const testCases = [
     { code: demoCode.componentDeclaration, expected: false },
     { code: demoCode.componentExpression, expected: false },
@@ -51,8 +51,8 @@ describe('isHook', () => {
   testCases.forEach(({ code, expected }, index) => {
     it(`should return ${expected} for test case ${index + 1}`, () => {
       const ast = parser.parse(code, {
-        sourceType: 'module',
-        plugins: ['jsx'],
+        sourceType: "module",
+        plugins: ["jsx"],
       })
       traverse(ast, {
         FunctionDeclaration(path) {
@@ -69,7 +69,7 @@ describe('isHook', () => {
   })
 })
 
-describe('isHookContextNode', () => {
+describe("isHookContextNode", () => {
   const testCases = [
     { code: demoCode.componentDeclaration, expected: true },
     { code: demoCode.componentExpression, expected: true },
@@ -82,8 +82,8 @@ describe('isHookContextNode', () => {
   testCases.forEach(({ code, expected }, index) => {
     it(`should return ${expected} for test case ${index + 1}`, () => {
       const ast = parser.parse(code, {
-        sourceType: 'module',
-        plugins: ['jsx'],
+        sourceType: "module",
+        plugins: ["jsx"],
       })
       traverse(ast, {
         FunctionDeclaration(path) {
@@ -100,8 +100,8 @@ describe('isHookContextNode', () => {
   })
 })
 
-describe('findHookContextNode', () => {
-  it('should find all hook context nodes', () => {
+describe("findHookContextNode", () => {
+  it("should find all hook context nodes", () => {
     const ast = parser.parse(
       `
             ${demoCode.componentDeclaration}
@@ -113,8 +113,8 @@ describe('findHookContextNode', () => {
             ${demoCode.helperFunction}
         `,
       {
-        sourceType: 'module',
-        plugins: ['jsx'],
+        sourceType: "module",
+        plugins: ["jsx"],
       },
     )
 
@@ -123,8 +123,8 @@ describe('findHookContextNode', () => {
   })
 })
 
-describe('TWrapper', () => {
-  it('should wrap string literal containing Korean with t()', () => {
+describe("TWrapper", () => {
+  it("should wrap string literal containing Korean with t()", () => {
     const code = `
       const Component = () => {
         const greeting = "안녕하세요";
@@ -133,8 +133,8 @@ describe('TWrapper', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     // HookContextNode 후보로 ArrowFunctionExpression 하나를 찾음
     const hookContextNodes = core.findHookContextNode(ast)
@@ -142,7 +142,7 @@ describe('TWrapper', () => {
     // Wrapper 인스턴스를 생성하여 wrapping 실행
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapStringLiteral()
 
@@ -156,7 +156,7 @@ describe('TWrapper', () => {
     expect(output).toContain('t("안녕하세요")')
   })
 
-  it('wraps JSXText containing Korean with t()', () => {
+  it("wraps JSXText containing Korean with t()", () => {
     const code = `
       const Component = () => (
         <div>
@@ -165,14 +165,14 @@ describe('TWrapper', () => {
       );
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapJSXText()
 
@@ -184,21 +184,21 @@ describe('TWrapper', () => {
     expect(output).toContain('{t("안녕하세요")}')
   })
 
-  it('wraps JSXAttribute text aleardy have expression containing Korean with t()', () => {
+  it("wraps JSXAttribute text aleardy have expression containing Korean with t()", () => {
     const code = `
       const Component = () => (
         <div placeholder={"안녕하세요"} />
       );
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapStringLiteral()
 
@@ -209,21 +209,21 @@ describe('TWrapper', () => {
     expect(output).toContain('placeholder={t("안녕하세요")}')
   })
 
-  it('wraps JSXAttribute text containing Korean with t()', () => {
+  it("wraps JSXAttribute text containing Korean with t()", () => {
     const code = `
       const Component = () => (
         <div placeholder="안녕하세요" />
       );
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapStringLiteral()
 
@@ -234,7 +234,7 @@ describe('TWrapper', () => {
     expect(output).toContain('placeholder={t("안녕하세요")}')
   })
 
-  it('wraps conditional expression consequent containing Korean with t()', () => {
+  it("wraps conditional expression consequent containing Korean with t()", () => {
     const code = `
       const Component = () => {
         const message = isKorean ? "안녕하세요" : "hello";
@@ -242,14 +242,14 @@ describe('TWrapper', () => {
       }
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapStringLiteral()
 
@@ -260,21 +260,21 @@ describe('TWrapper', () => {
     expect(output).toContain('isKorean ? t("안녕하세요") : "hello"')
   })
 
-  it('wraps conditional expression in Component containing Korean with t()', () => {
+  it("wraps conditional expression in Component containing Korean with t()", () => {
     const code = `
       const Component = () => {
         return <> {isKorean ? "안녕하세요" : "하hello"} </>;
       }
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapStringLiteral()
 
@@ -285,7 +285,7 @@ describe('TWrapper', () => {
     expect(output).toContain('isKorean ? t("안녕하세요") : t("하hello")')
   })
 
-  it('wraps a template literal with interpolations into a t() call', () => {
+  it("wraps a template literal with interpolations into a t() call", () => {
     const code = `
         const Component = () => {
         const message = \`\${user.name}님 \${time}에 만나요\`;
@@ -294,14 +294,14 @@ describe('TWrapper', () => {
       }
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
     const hookContextNodes = core.findHookContextNode(ast)
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrapTemplateLiteral()
 
@@ -315,11 +315,11 @@ describe('TWrapper', () => {
     expect(output).toContain('"time": time')
   })
 
-  it('should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()', () => {
+  it("should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()", () => {
     // 1. AST 파싱
     const ast = parser.parse(demoCode.allCasesDemo, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -329,7 +329,7 @@ describe('TWrapper', () => {
     const wrapper = new core.TWrapper(
       hookContextNodes,
       // 간단히 한글 유무만 확인하도록 구현
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrap() // wrap()은 StringLiteral, JSXText, TemplateLiteral 등을 모두 처리
 
@@ -350,7 +350,7 @@ describe('TWrapper', () => {
     expect(output).toContain('{t("반갑습니다.")}')
   })
 
-  it('should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()', () => {
+  it("should correctly wrap string literals, JSX text, attributes, template literals, and ternary expressions with t()", () => {
     // 1. AST 파싱
     const code = `
       function TypeAnnotatedTemplate<T>(value: T) {
@@ -359,8 +359,8 @@ describe('TWrapper', () => {
       }
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -370,7 +370,7 @@ describe('TWrapper', () => {
     const wrapper = new core.TWrapper(
       hookContextNodes,
       // 간단히 한글 유무만 확인하도록 구현
-      createLanguageCheckFunction('ko'),
+      createLanguageCheckFunction("ko"),
     )
     wrapper.wrap() // wrap()은 StringLiteral, JSXText, TemplateLiteral 등을 모두 처리
 
@@ -384,14 +384,14 @@ describe('TWrapper', () => {
   })
 })
 
-describe('Insertion', () => {
-  it('converts arrow function with implicit return to a block statement with explicit return', () => {
+describe("Insertion", () => {
+  it("converts arrow function with implicit return to a block statement with explicit return", () => {
     const code = `
       const Component = () => <p>안녕하세요</p>;
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -407,20 +407,20 @@ describe('Insertion', () => {
     // const Component = () => {
     //   return <p>안녕하세요</p>;
     // };
-    expect(output).toContain('return <p>안녕하세요</p>;')
-    expect(output).toContain('{')
-    expect(output).toContain('}')
+    expect(output).toContain("return <p>안녕하세요</p>;")
+    expect(output).toContain("{")
+    expect(output).toContain("}")
   })
 
-  it('does not convert arrow function with explicit return', () => {
+  it("does not convert arrow function with explicit return", () => {
     const code = `
     const Component = () => {
       return <p>안녕하세요</p>;
     };
   `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -436,12 +436,12 @@ describe('Insertion', () => {
     // const Component = () => {
     //   return <p>안녕하세요</p>;
     // };
-    expect(output).toContain('return <p>안녕하세요</p>;')
-    expect(output).toContain('{')
-    expect(output).toContain('}')
+    expect(output).toContain("return <p>안녕하세요</p>;")
+    expect(output).toContain("{")
+    expect(output).toContain("}")
   })
 
-  it('inserts useTranslation hook at the top of top-level function if t() exists', () => {
+  it("inserts useTranslation hook at the top of top-level function if t() exists", () => {
     const code = `
       const Component = () => {
         const handleClick = () => {
@@ -453,8 +453,8 @@ describe('Insertion', () => {
       }
     `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -471,10 +471,10 @@ describe('Insertion', () => {
       jsescOption: { minimal: true },
     }).code
     // 기대: 최상위 함수의 시작 부분에 const { t } = useTranslation(); 이 삽입되어 있어야 한다.
-    expect(output).toContain('const { t } = useTranslation()')
+    expect(output).toContain("const { t } = useTranslation()")
   })
 
-  it('inserts useTranslation hook at the top of top-level functions when t() exists in both components', () => {
+  it("inserts useTranslation hook at the top of top-level functions when t() exists in both components", () => {
     const code = `
         const Component1 = () => {
           const handleClick = () => {
@@ -489,8 +489,8 @@ describe('Insertion', () => {
         
       `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -514,7 +514,7 @@ describe('Insertion', () => {
     expect(matches!.length).toBe(2)
   })
 
-  it('does not insert duplicate useTranslation hook if already present', () => {
+  it("does not insert duplicate useTranslation hook if already present", () => {
     const code = `
         const Component = () => {
           const { t } = useTranslation();
@@ -527,8 +527,8 @@ describe('Insertion', () => {
         }
       `
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -551,7 +551,7 @@ describe('Insertion', () => {
     expect(matches!.length).toBe(1)
   })
 
-  it('does not insert useTranslation hook if t() call is absent', () => {
+  it("does not insert useTranslation hook if t() call is absent", () => {
     const code = `
       const Component = () => {
         return (
@@ -561,8 +561,8 @@ describe('Insertion', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -579,10 +579,10 @@ describe('Insertion', () => {
       jsescOption: { minimal: true },
     }).code
 
-    expect(output).not.toContain('const { t } = useTranslation()')
+    expect(output).not.toContain("const { t } = useTranslation()")
   })
 
-  it('should insert an import declaration when a t call exists and the import is missing', () => {
+  it("should insert an import declaration when a t call exists and the import is missing", () => {
     const code = `
       const Component = () => {
         return (
@@ -592,8 +592,8 @@ describe('Insertion', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     const hookContextNodes = core.findHookContextNode(ast)
@@ -610,7 +610,7 @@ describe('Insertion', () => {
     expect(output).toContain('import { useTranslation } from "next-i18next"')
   })
 
-  it('should insert an import declaration when a t call exists and the import is missin on react', () => {
+  it("should insert an import declaration when a t call exists and the import is missin on react", () => {
     const code = `
       const Component = () => {
         return (
@@ -620,13 +620,13 @@ describe('Insertion', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     const hookContextNodes = core.findHookContextNode(ast)
 
-    const insertion = new core.Insertion(hookContextNodes, ast, 'react')
+    const insertion = new core.Insertion(hookContextNodes, ast, "react")
 
     insertion.insertImportDeclartion()
 
@@ -638,15 +638,15 @@ describe('Insertion', () => {
     expect(output).toContain('import { useTranslation } from "react-i18next"')
   })
 
-  it('should inject both the translation hook and the import declaration when a t call exists', () => {
+  it("should inject both the translation hook and the import declaration when a t call exists", () => {
     const code = `
       const Component = () => <div>{t("안녕하세요")}</div>
     `
 
     // 1. AST 생성 (jsx, typescript 플러그인 활성화)
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     // 2. HookContextNode 후보 찾기
@@ -663,10 +663,10 @@ describe('Insertion', () => {
     }).code
 
     expect(output).toContain('import { useTranslation } from "next-i18next"')
-    expect(output).toContain('const { t } = useTranslation()')
+    expect(output).toContain("const { t } = useTranslation()")
   })
 
-  it('does not insert import declaration if already present', () => {
+  it("does not insert import declaration if already present", () => {
     const code = `
       import { useTranslation } from "next-i18next"
 
@@ -679,8 +679,8 @@ describe('Insertion', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     const hookContextNodes = core.findHookContextNode(ast)
@@ -701,7 +701,7 @@ describe('Insertion', () => {
     expect(matches!.length).toBe(1)
   })
 
-  it('does not insert import declaration if already present', () => {
+  it("does not insert import declaration if already present", () => {
     const code = `
       import { useState } from "react";
       import { useTranslation } from "next-i18next";
@@ -715,8 +715,8 @@ describe('Insertion', () => {
     `
 
     const ast = parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['jsx', 'typescript'],
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
     })
 
     const hookContextNodes = core.findHookContextNode(ast)
@@ -740,13 +740,13 @@ describe('Insertion', () => {
 
 const parseCode = (code: string) => {
   return parser.parse(code, {
-    sourceType: 'module',
-    plugins: ['jsx', 'typescript'],
+    sourceType: "module",
+    plugins: ["jsx", "typescript"],
   })
 }
 
-describe('Template Literal and JSX Attribute Transformation (global)', () => {
-  it('should transform template literals containing Chinese', () => {
+describe("Template Literal and JSX Attribute Transformation (global)", () => {
+  it("should transform template literals containing Chinese", () => {
     const code = `
       function TemplateLiteralComponent({ name }) {
         return <p>{\`\${name}，你好\`}</p>;
@@ -758,7 +758,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('zh'),
+      createLanguageCheckFunction("zh"),
     )
     wrapper.wrapTemplateLiteral()
 
@@ -770,7 +770,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
     expect(output).toContain('t("{{name}}，你好", { "name": name })')
   })
 
-  it('should transform JSX attributes containing Chinese', () => {
+  it("should transform JSX attributes containing Chinese", () => {
     const code = `
       function JSXAttributeComponent() {
         return <input type="text" placeholder="请输入您的名字" />;
@@ -782,7 +782,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('zh'),
+      createLanguageCheckFunction("zh"),
     )
     wrapper.wrapStringLiteral()
 
@@ -794,7 +794,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
     expect(output).toContain('placeholder={t("请输入您的名字")}')
   })
 
-  it('should transform template literals containing English', () => {
+  it("should transform template literals containing English", () => {
     const code = `
       function TemplateLiteralComponent({ name }) {
         return <p>{\`\${name}, hello\`}</p>;
@@ -806,7 +806,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('en'),
+      createLanguageCheckFunction("en"),
     )
     wrapper.wrapTemplateLiteral()
 
@@ -818,7 +818,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
     expect(output).toContain('t("{{name}}, hello", { "name": name })')
   })
 
-  it('should transform JSX attributes containing English', () => {
+  it("should transform JSX attributes containing English", () => {
     const code = `
       function JSXAttributeComponent() {
         return <input type="text" placeholder="Please enter your name" />;
@@ -830,7 +830,7 @@ describe('Template Literal and JSX Attribute Transformation (global)', () => {
 
     const wrapper = new core.TWrapper(
       hookContextNodes,
-      createLanguageCheckFunction('en'),
+      createLanguageCheckFunction("en"),
     )
     wrapper.wrapStringLiteral()
 

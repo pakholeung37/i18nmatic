@@ -1,14 +1,14 @@
-import { KeyLanguage } from '../type'
+import { KeyLanguage } from "../type"
 
 export function createLanguageCheckFunction(language: KeyLanguage) {
   switch (language) {
-    case 'ko':
+    case "ko":
       return containsKorean
-    case 'ja':
+    case "ja":
       return containsJapanese
-    case 'zh':
+    case "zh":
       return containsChinese
-    case 'en':
+    case "en":
       return containsEnglish
     default:
       return () => false

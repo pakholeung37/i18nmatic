@@ -1,14 +1,14 @@
-import { NodePath } from '@babel/traverse'
-import { HookContextNode } from './type'
-import * as t from '@babel/types'
-import { find, has } from '../common'
+import { NodePath } from "@babel/traverse"
+import { HookContextNode } from "./type"
+import * as t from "@babel/types"
+import { find, has } from "../common"
 
 export class Insertion {
   private importModuleName: string
   constructor(
     private readonly paths: NodePath<HookContextNode>[],
     private readonly parsedFileAST: t.File,
-    importFromName: string = 'react-i18next',
+    importFromName: string = "react-i18next",
   ) {
     this.importModuleName = importFromName
   }
@@ -33,7 +33,7 @@ export class Insertion {
     const programPath = find(this.parsedFileAST, t.isProgram)
 
     if (!programPath) {
-      throw new Error('Invalid file: Program node not found')
+      throw new Error("Invalid file: Program node not found")
     }
 
     if (!this.hasTCall(programPath)) {
@@ -54,8 +54,8 @@ export class Insertion {
       const importDeclaration = t.importDeclaration(
         [
           t.importSpecifier(
-            t.identifier('useTranslation'),
-            t.identifier('useTranslation'),
+            t.identifier("useTranslation"),
+            t.identifier("useTranslation"),
           ),
         ],
         t.stringLiteral(this.importModuleName),
@@ -67,15 +67,15 @@ export class Insertion {
       // 在指定位置插入 import 语句
       if (insertIndex === 0) {
         // 如果要插入到最前面，使用 unshiftContainer
-        programPath.unshiftContainer('body', importDeclaration)
+        programPath.unshiftContainer("body", importDeclaration)
       } else {
         // 如果要插入到其他位置，使用 insertAfter
-        const bodyPaths = programPath.get('body')
+        const bodyPaths = programPath.get("body")
         if (Array.isArray(bodyPaths) && bodyPaths[insertIndex - 1]) {
           bodyPaths[insertIndex - 1].insertAfter(importDeclaration)
         } else {
           // 回退到使用 unshiftContainer
-          programPath.unshiftContainer('body', importDeclaration)
+          programPath.unshiftContainer("body", importDeclaration)
         }
       }
     }
@@ -102,7 +102,7 @@ export class Insertion {
       (spec) =>
         t.isImportSpecifier(spec) &&
         t.isIdentifier(spec.imported) &&
-        spec.imported.name === 'useTranslation',
+        spec.imported.name === "useTranslation",
     )
   }
 
@@ -110,8 +110,8 @@ export class Insertion {
     importDeclaration: t.ImportDeclaration,
   ): void {
     const useTranslationSpecifier = t.importSpecifier(
-      t.identifier('useTranslation'),
-      t.identifier('useTranslation'),
+      t.identifier("useTranslation"),
+      t.identifier("useTranslation"),
     )
 
     importDeclaration.specifiers.push(useTranslationSpecifier)
@@ -152,16 +152,16 @@ export class Insertion {
     this.paths.forEach((path) => {
       if (!this.shouldInsertTranslationHook(path)) return
 
-      const hookInjection = t.variableDeclaration('const', [
+      const hookInjection = t.variableDeclaration("const", [
         t.variableDeclarator(
           t.objectPattern([
-            t.objectProperty(t.identifier('t'), t.identifier('t'), false, true),
+            t.objectProperty(t.identifier("t"), t.identifier("t"), false, true),
           ]),
-          t.callExpression(t.identifier('useTranslation'), []),
+          t.callExpression(t.identifier("useTranslation"), []),
         ),
       ])
 
-      const blockPath = path.get('body') as NodePath<t.BlockStatement>
+      const blockPath = path.get("body") as NodePath<t.BlockStatement>
       blockPath.node.body.unshift(hookInjection)
       isChanged = true
     })
@@ -185,7 +185,7 @@ export class Insertion {
       (node) =>
         t.isCallExpression(node) &&
         t.isIdentifier(node.callee) &&
-        node.callee.name === 't',
+        node.callee.name === "t",
     )
   }
 
@@ -201,7 +201,7 @@ export class Insertion {
   }
 
   private isAlreadyInjectedHook(path: NodePath<HookContextNode>): boolean {
-    const blockPath = path.get('body') as NodePath<t.BlockStatement>
+    const blockPath = path.get("body") as NodePath<t.BlockStatement>
     const firstStmt = blockPath.node.body[0]
 
     return (
@@ -210,7 +210,7 @@ export class Insertion {
       t.isObjectPattern(firstStmt.declarations[0].id) &&
       t.isCallExpression(firstStmt.declarations[0].init) &&
       t.isIdentifier(firstStmt.declarations[0].init.callee) &&
-      firstStmt.declarations[0].init.callee.name === 'useTranslation'
+      firstStmt.declarations[0].init.callee.name === "useTranslation"
     )
   }
 }

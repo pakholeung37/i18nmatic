@@ -1,11 +1,11 @@
-import { Loader } from './loader'
-import * as core from './core'
-import { handleParseError } from './common'
-import { createLanguageCheckFunction } from './common/language'
-import { Generator } from './generator'
-import { Extractor } from './extractor'
-import { ExtractedText } from './core/type'
-import { KeyLanguage, OutputTranslation } from './type'
+import { Loader } from "./loader"
+import * as core from "./core"
+import { handleParseError } from "./common"
+import { createLanguageCheckFunction } from "./common/language"
+import { Generator } from "./generator"
+import { Extractor } from "./extractor"
+import { ExtractedText } from "./core/type"
+import { KeyLanguage, OutputTranslation } from "./type"
 
 //TODO: 제외 경로 추가, ns 정의
 interface Options {
@@ -25,19 +25,19 @@ interface Options {
 }
 
 const defaultOptions: Options = {
-  importFromName: 'react-i18next',
-  locales: ['en_US'],
-  include: 'samples',
-  exclude: ['node_modules', 'dist', 'build', 'test'],
-  ext: ['js', 'jsx', 'ts', 'tsx'],
+  importFromName: "react-i18next",
+  locales: ["en_US"],
+  include: "samples",
+  exclude: ["node_modules", "dist", "build", "test"],
+  ext: ["js", "jsx", "ts", "tsx"],
   dry: false,
-  outputDir: 'public/locales',
+  outputDir: "public/locales",
   enablePrettier: true,
-  keyLanguage: 'ko',
-  outputFileName: 'en_US.json',
-  outputTranslation: 'create',
+  keyLanguage: "ko",
+  outputFileName: "en_US.json",
+  outputTranslation: "create",
   comment: false,
-  defaultTranslation: '',
+  defaultTranslation: "",
 }
 
 export async function main(options: Options) {
@@ -77,7 +77,7 @@ export async function main(options: Options) {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
         createLanguageCheckFunction(keyLanguage),
-        importFromName || 'react-i18next',
+        importFromName || "react-i18next",
       )
 
       if (isChanged) {

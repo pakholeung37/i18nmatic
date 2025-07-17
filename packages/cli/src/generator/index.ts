@@ -1,10 +1,10 @@
-import generate from '@babel/generator'
-import * as t from '@babel/types'
-import * as fs from 'fs'
-import * as prettier from 'prettier'
-import * as path from 'path'
-import { ExtractedText } from '../core/type'
-import { OutputTranslation } from '../type'
+import generate from "@babel/generator"
+import * as t from "@babel/types"
+import * as fs from "fs"
+import * as prettier from "prettier"
+import * as path from "path"
+import { ExtractedText } from "../core/type"
+import { OutputTranslation } from "../type"
 
 export class Generator {
   private enablePrettier: boolean
@@ -35,7 +35,7 @@ export class Generator {
     outputFileName: string,
     outputTranslation: OutputTranslation,
     comment: boolean = false,
-    defaultTranslation: string = '',
+    defaultTranslation: string = "",
   ): Promise<void> {
     const formattedData = this.formatExtractedText(
       data,
@@ -48,12 +48,12 @@ export class Generator {
 
       let finalData = formattedData
 
-      if (outputTranslation === 'merge') {
+      if (outputTranslation === "merge") {
         // merge 模式：读取现有文件并合并
         finalData = this.mergeWithExistingJson(filePath, formattedData)
       }
 
-      if (outputTranslation !== 'dry') {
+      if (outputTranslation !== "dry") {
         // 只有在非 dry 模式下才写入文件
         const json = JSON.stringify(finalData, null, 2).replace(
           /(\s+)"(__comment_\d+)"/g,
@@ -81,7 +81,7 @@ export class Generator {
       // 如果是 dry 模式 不输出
       fs.writeFileSync(filePath, content)
     } else {
-      fs.writeFileSync(filePath + '.snap', content)
+      fs.writeFileSync(filePath + ".snap", content)
     }
   }
 
@@ -92,9 +92,9 @@ export class Generator {
 
     const configPath = await prettier.resolveConfigFile()
     if (!configPath) {
-      console.log('Prettier config file not found')
+      console.log("Prettier config file not found")
       return await prettier.format(code, {
-        parser: 'babel-ts',
+        parser: "babel-ts",
       })
     }
 
@@ -107,14 +107,14 @@ export class Generator {
     // format에 오류가 발생할 수 있음
     return await prettier.format(code, {
       ...config,
-      parser: 'babel-ts',
+      parser: "babel-ts",
     })
   }
 
   private formatExtractedText(
     data: ExtractedText[],
     comment: boolean = false,
-    defaultTranslation: string = '',
+    defaultTranslation: string = "",
   ): Record<string, string> {
     // trwapper 분리
 
@@ -142,7 +142,7 @@ export class Generator {
 
   private plainJson(
     data: ExtractedText[],
-    defaultTranslation: string = '',
+    defaultTranslation: string = "",
   ): Record<string, string> {
     const result: Record<string, string> = {}
 
@@ -156,7 +156,7 @@ export class Generator {
   private groupToPlainJson(
     data: Record<string, ExtractedText[]>,
     comment: boolean = false,
-    defaultTranslation: string = '',
+    defaultTranslation: string = "",
   ): Record<string, string> {
     const result: Record<string, string> = {}
 
@@ -178,7 +178,7 @@ export class Generator {
     try {
       // 尝试读取现有文件
       if (fs.existsSync(filePath)) {
-        const existingContent = fs.readFileSync(filePath, 'utf8')
+        const existingContent = fs.readFileSync(filePath, "utf8")
         const existingData = JSON.parse(existingContent)
 
         // 合并数据：新数据会覆盖现有数据中的相同 key

@@ -1,7 +1,7 @@
-import * as t from '@babel/types'
-import traverse, { NodePath } from '@babel/traverse'
-import { getTemplateLiteralKey } from '../common'
-import { ExtractedText } from '../core/type'
+import * as t from "@babel/types"
+import traverse, { NodePath } from "@babel/traverse"
+import { getTemplateLiteralKey } from "../common"
+import { ExtractedText } from "../core/type"
 
 export class Extractor {
   private results: ExtractedText[] = []
@@ -36,7 +36,7 @@ export class Extractor {
     this.results.push({
       text,
       isTWrapped,
-      containerName: this.filepath + '/' + (containerName || ''),
+      containerName: this.filepath + "/" + (containerName || ""),
     })
   }
 
@@ -52,7 +52,7 @@ export class Extractor {
     this.results.push({
       text,
       isTWrapped,
-      containerName: this.filepath + '/' + (containerName || ''),
+      containerName: this.filepath + "/" + (containerName || ""),
     })
   }
 
@@ -69,7 +69,7 @@ export class Extractor {
     this.results.push({
       text: translationKey,
       isTWrapped,
-      containerName: this.filepath + '/' + (containerName || ''),
+      containerName: this.filepath + "/" + (containerName || ""),
     })
   }
 
@@ -80,7 +80,7 @@ export class Extractor {
       if (
         current.isCallExpression() &&
         t.isIdentifier(current.node.callee) &&
-        current.node.callee.name === 't'
+        current.node.callee.name === "t"
       ) {
         return true
       }

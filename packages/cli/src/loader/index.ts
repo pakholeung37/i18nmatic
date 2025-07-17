@@ -1,8 +1,8 @@
-import * as fs from 'fs/promises'
-import * as parser from '@babel/parser'
-import * as t from '@babel/types'
-import { globSync } from 'fs'
-import { handleParseError } from '../common'
+import * as fs from "fs/promises"
+import * as parser from "@babel/parser"
+import * as t from "@babel/types"
+import { globSync } from "fs"
+import { handleParseError } from "../common"
 
 interface File {
   ast: t.File
@@ -17,7 +17,7 @@ export class Loader {
   constructor({
     include,
     exclude = [],
-    ext = ['js', 'jsx', 'ts', 'tsx'],
+    ext = ["js", "jsx", "ts", "tsx"],
   }: {
     include: string | string[]
     exclude?: string | string[]
@@ -48,13 +48,13 @@ export class Loader {
       await Promise.all(filePromises)
       onLoaded?.()
     } catch (error) {
-      console.error('Failed to load files:', error)
+      console.error("Failed to load files:", error)
       throw error
     }
   }
 
   private getTargetFilePaths(): string[] {
-    const extPattern = `{${this.ext.join(',')}}`
+    const extPattern = `{${this.ext.join(",")}}`
     const includePatterns = Array.isArray(this.include)
       ? this.include
       : [this.include]
@@ -76,9 +76,9 @@ export class Loader {
       } else {
         // 如果 pattern 不包含扩展名，添加扩展名匹配
         if (
-          pattern.includes('*') ||
-          pattern.includes('?') ||
-          pattern.includes('[')
+          pattern.includes("*") ||
+          pattern.includes("?") ||
+          pattern.includes("[")
         ) {
           // 如果是 glob 模式，直接使用并添加扩展名
           allPaths.push(...globSync(`${pattern}.${extPattern}`))
@@ -91,7 +91,7 @@ export class Loader {
     }
     let result = [...new Set(allPaths)]
     // 应用排除模式
-    if (excludePatterns.length > 0 && excludePatterns[0] !== '') {
+    if (excludePatterns.length > 0 && excludePatterns[0] !== "") {
       const excludedPaths = new Set<string>()
 
       for (const excludePattern of excludePatterns) {
@@ -106,18 +106,18 @@ export class Loader {
     }
 
     console.log(
-      `Found ${result.length} files matching patterns: ${includePatterns.join(', ')}`,
+      `Found ${result.length} files matching patterns: ${includePatterns.join(", ")}`,
     )
     // 去重并返回
     return result
   }
 
   private async loadSourceFile(filePath: string): Promise<t.File> {
-    const code = await fs.readFile(filePath, 'utf8')
+    const code = await fs.readFile(filePath, "utf8")
 
     return parser.parse(code, {
-      sourceType: 'module',
-      plugins: ['typescript', 'jsx'],
+      sourceType: "module",
+      plugins: ["typescript", "jsx"],
     })
   }
 }

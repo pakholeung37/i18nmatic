@@ -1,5 +1,5 @@
 {
-  "name": "@terminus/i18n-cli",
+  "name": "@terminus/t-i18n-cli",
   "version": "1.0.7",
   "description": "CLI tool for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
     "README.md"
   ],
   "bin": {
-    "i18n-cli": "./bin/cli.js"
+    "t-i18n-cli": "./bin/cli.js"
   },
   "scripts": {
     "start": "node bin/cli.js",
@@ -20,7 +20,7 @@
     "test": "vitest",
     "prebuild": "rm -rf dist",
     "test:cov": "vitest --coverage",
-    "i18n-cli": "i18n-cli"
+    "t-i18n-cli": "t-i18n-cli"
   },
   "keywords": [
     "i18n",

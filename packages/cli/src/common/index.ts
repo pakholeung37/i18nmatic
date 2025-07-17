@@ -1,6 +1,6 @@
-import generate from '@babel/generator'
-import traverse, { NodePath } from '@babel/traverse'
-import * as t from '@babel/types'
+import generate from "@babel/generator"
+import traverse, { NodePath } from "@babel/traverse"
+import * as t from "@babel/types"
 
 export function has(path: NodePath, check: (node: t.Node) => boolean): boolean {
   let found = false
@@ -38,7 +38,7 @@ export function find<T extends t.Node>(
 export function getTemplateLiteralKey(tplPath: NodePath<t.TemplateLiteral>) {
   const quasis = tplPath.node.quasis
   const expressions = tplPath.node.expressions
-  let translationKey = ''
+  let translationKey = ""
   const properties: t.ObjectProperty[] = []
 
   for (let i = 0; i < expressions.length; i++) {
@@ -81,7 +81,7 @@ export function handleParseError(error: unknown, filePath: string) {
 
   // Babel 파싱 에러 구조
   // error.loc?.line, error.loc?.column, error.message
-  if (error && typeof error === 'object') {
+  if (error && typeof error === "object") {
     const e = error as any
     if (e.loc) {
       console.error(

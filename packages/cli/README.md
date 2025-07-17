@@ -41,32 +41,31 @@ yarn add -D i18nmatic
 
 ```json
 {
-  "runType": "next",        // Choose between "next" or "react"
-                              // - "next": Use for Next.js projects
-                              // - "react": Use for React projects
+  "runType": "next", // Choose between "next" or "react"
+  // - "next": Use for Next.js projects
+  // - "react": Use for React projects
 
-  "entry": "src",           // Root directory of your source code
-                              // - Example: "src" targets all files in the src directory
+  "entry": "src", // Root directory of your source code
+  // - Example: "src" targets all files in the src directory
 
-  "locales": ["en", "ja-JP"],  // Array of locale codes to support
-                                // - Example: ["en", "ja-JP"] supports English and Japanese
-                                // - JSON files are generated separately per language
+  "locales": ["en", "ja-JP"], // Array of locale codes to support
+  // - Example: ["en", "ja-JP"] supports English and Japanese
+  // - JSON files are generated separately per language
 
   "outputDir": "public/locales", // Directory to store generated translation JSON files
-                                   // - Example: "public/locales" is compatible with Next.js static paths
+  // - Example: "public/locales" is compatible with Next.js static paths
 
-  "enablePrettier": true,     // Whether to format generated code and JSON files using Prettier
-                              // - true: Use Prettier formatting
-                              // - false: Save original formatting
+  "enablePrettier": true, // Whether to format generated code and JSON files using Prettier
+  // - true: Use Prettier formatting
+  // - false: Save original formatting
 
   "outputFileName": "common.json", // Name of the generated translation JSON file
-                                     // - Example: "common.json" is consistent across languages
+  // - Example: "common.json" is consistent across languages
 
-  "keyLanguage": "ko"         // Base language to extract translation keys
-                              // - Example: "ko" extracts Korean text as translation keys
-                              // - Supported values: "ko", "en", "ja", "zh", etc.
+  "keyLanguage": "ko" // Base language to extract translation keys
+  // - Example: "ko" extracts Korean text as translation keys
+  // - Supported values: "ko", "en", "ja", "zh", etc.
 }
-
 ```
 
 ### 2. Run CLI
@@ -99,18 +98,18 @@ yarn auto-i18n
 
 ```jsx
 function Greeting() {
-  return <div>안녕하세요</div>;
+  return <div>안녕하세요</div>
 }
 ```
 
 ### After:
 
 ```jsx
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next"
 
 function Greeting() {
-  const { t } = useTranslation();
-  return <div>{t("안녕하세요")}</div>;
+  const { t } = useTranslation()
+  return <div>{t("안녕하세요")}</div>
 }
 ```
 
@@ -129,30 +128,31 @@ function Greeting() {
 ```jsx
 // 템플릿 리터럴
 function TemplateLiteralComponent({ name }) {
-  return <p>{`${name}님 안녕하세요`}</p>;
+  return <p>{`${name}님 안녕하세요`}</p>
 }
 
 // JSX 속성
 function JSXAttributeComponent() {
-  return <input type="text" placeholder="안녕하세요 여기에 입력해 주세요" />;
+  return <input type="text" placeholder="안녕하세요 여기에 입력해 주세요" />
 }
 ```
 
 ### **Transformed Code (After Transformation)**
 
 ```jsx
-import { useTranslation } from "next-i18next";
+import { useTranslation } from "next-i18next"
 
 function TemplateLiteralComponent({ name }) {
-  const { t } = useTranslation();
-  return <p>{t("{{name}}님 안녕하세요", { name })}</p>;
+  const { t } = useTranslation()
+  return <p>{t("{{name}}님 안녕하세요", { name })}</p>
 }
 
 function JSXAttributeComponent() {
-  const { t } = useTranslation();
-  return <input type="text" placeholder={t("안녕하세요 여기에 입력해 주세요")} />;
+  const { t } = useTranslation()
+  return (
+    <input type="text" placeholder={t("안녕하세요 여기에 입력해 주세요")} />
+  )
 }
-
 ```
 
 ### **Extracted JSON File (`public/locales/{locale}/common.json`)**
@@ -163,6 +163,7 @@ function JSXAttributeComponent() {
   "안녕하세요 여기에 입력해 주세요": "안녕하세요 여기에 입력해 주세요"
 }
 ```
+
 ## When Automatic Wrapping is Difficult
 
 In certain scenarios, as shown below, it's difficult for the tool to automatically determine whether the attributes should be wrapped with the `t()` function, due to the lack of explicit context within the code itself.
@@ -177,20 +178,20 @@ However, internationalization is still essential in these cases. To handle such 
 const ITEMS = [
   {
     id: 1,
-    title: '안녕하세요',
-    description: '반갑습니다.',
+    title: "안녕하세요",
+    description: "반갑습니다.",
   },
   {
     id: 2,
-    title: '잘부탁드립니다.',
-    description: '고맙습니다.',
+    title: "잘부탁드립니다.",
+    description: "고맙습니다.",
   },
   {
     id: 3,
-    title: '미안합니다.',
-    description: '감사합니다.',
+    title: "미안합니다.",
+    description: "감사합니다.",
   },
-];
+]
 
 function Example() {
   return (
@@ -202,7 +203,7 @@ function Example() {
         </div>
       ))}
     </>
-  );
+  )
 }
 ```
 
@@ -233,15 +234,15 @@ function Example() {
 
 ### 📘 Configuration (`auto-i18n.config.json`)
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `runType` | `"next"` \| `"react"` | `"next"` | Framework type used in your project. |
-| `entry` | `string` | `"src"` | Root directory for your source code. |
-| `locales` | `string[]` | `["ja_JP"]` | Supported locale codes (e.g., `["en", "ja-JP"]`). |
-| `outputDir` | `string` | `"public/locales"` | Directory for generated translation JSON files. |
-| `enablePrettier` | `boolean` | `true` | Format output using Prettier. |
-| `outputFileName` | `string` | `"common.json"` | Filename for generated translation files. |
-| `keyLanguage` | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"` | Base language for extracting translation keys. |
+| Option           | Type                                 | Default            | Description                                       |
+| ---------------- | ------------------------------------ | ------------------ | ------------------------------------------------- |
+| `runType`        | `"next"` \| `"react"`                | `"next"`           | Framework type used in your project.              |
+| `entry`          | `string`                             | `"src"`            | Root directory for your source code.              |
+| `locales`        | `string[]`                           | `["ja_JP"]`        | Supported locale codes (e.g., `["en", "ja-JP"]`). |
+| `outputDir`      | `string`                             | `"public/locales"` | Directory for generated translation JSON files.   |
+| `enablePrettier` | `boolean`                            | `true`             | Format output using Prettier.                     |
+| `outputFileName` | `string`                             | `"common.json"`    | Filename for generated translation files.         |
+| `keyLanguage`    | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"`             | Base language for extracting translation keys.    |
 
 ## Testing
 

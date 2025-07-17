@@ -1,8 +1,8 @@
-import generate from '@babel/generator'
-import { NodePath } from '@babel/traverse'
-import * as t from '@babel/types'
-import { HookContextNode } from './type'
-import { getTemplateLiteralKey } from '../common'
+import generate from "@babel/generator"
+import { NodePath } from "@babel/traverse"
+import * as t from "@babel/types"
+import { HookContextNode } from "./type"
+import { getTemplateLiteralKey } from "../common"
 
 export class TWrapper {
   constructor(
@@ -29,7 +29,7 @@ export class TWrapper {
           }
 
           if (this.checkLanguage(path.node.value)) {
-            const newCallExpr = t.callExpression(t.identifier('t'), [
+            const newCallExpr = t.callExpression(t.identifier("t"), [
               t.stringLiteral(path.node.value),
             ])
 
@@ -60,7 +60,7 @@ export class TWrapper {
           // 필요에 따라 공백을 제거(여기서는 trim 후 빈 문자열이면 패스)
           const trimmed = text.trim()
           if (trimmed && this.checkLanguage(trimmed)) {
-            const newCallExpr = t.callExpression(t.identifier('t'), [
+            const newCallExpr = t.callExpression(t.identifier("t"), [
               t.stringLiteral(trimmed),
             ])
             const jsxExprContainer = t.jsxExpressionContainer(newCallExpr)
@@ -84,7 +84,7 @@ export class TWrapper {
           }
 
           const objExpr = t.objectExpression(properties)
-          const callExpr = t.callExpression(t.identifier('t'), [
+          const callExpr = t.callExpression(t.identifier("t"), [
             t.stringLiteral(translationKey),
             objExpr,
           ])
@@ -99,7 +99,7 @@ export class TWrapper {
     return (
       t.isCallExpression(path.parent) &&
       t.isIdentifier(path.parent.callee) &&
-      path.parent.callee.name === 't'
+      path.parent.callee.name === "t"
     )
   }
 
@@ -109,7 +109,7 @@ export class TWrapper {
       if (
         t.isCallExpression(expr) &&
         t.isIdentifier(expr.callee) &&
-        expr.callee.name === 't'
+        expr.callee.name === "t"
       ) {
         return true
       }
