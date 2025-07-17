@@ -5,7 +5,7 @@ import { createLanguageCheckFunction } from "./common/language"
 import { Generator } from "./generator"
 import { Extractor } from "./extractor"
 import { ExtractedText } from "./core/type"
-import { KeyLanguage, OutputTranslation } from "./type"
+import { KeyLanguage, OutputJsonMode } from "./type"
 
 interface Options {
   /**
@@ -30,7 +30,7 @@ interface Options {
   enablePrettier: boolean
   outputFileName: string
   dry: boolean
-  outputTranslation: OutputTranslation
+  outputJsonMode: OutputJsonMode
   comment?: boolean
   defaultTranslation?: string
 }
@@ -46,7 +46,7 @@ const defaultOptions: Options = {
   outputDir: "public/locales",
   enablePrettier: true,
   outputFileName: "en_US.json",
-  outputTranslation: "create",
+  outputJsonMode: "create",
   comment: false,
   defaultTranslation: "",
 }
@@ -69,7 +69,7 @@ export async function main(options: Options) {
     outputFileName,
     keyLanguage,
     dry,
-    outputTranslation,
+    outputJsonMode,
     comment,
     defaultTranslation,
   } = runtimeOptions
@@ -86,14 +86,14 @@ export async function main(options: Options) {
   })
 
   const extractedTexts: ExtractedText[] = []
-
+  const checkLanguage = createLanguageCheckFunction(keyLanguage)
   // 추후 여러 언어 동적 할당
   await loader.load((file) => {
     try {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
-        createLanguageCheckFunction(keyLanguage),
-        importModuleName || "react-i18next",
+        checkLanguage,
+        importModuleName,
         useHook,
       )
 
@@ -105,7 +105,7 @@ export async function main(options: Options) {
       extractedTexts.push(
         ...new Extractor(
           file.ast,
-          createLanguageCheckFunction(keyLanguage),
+          checkLanguage,
           file.filepath,
         ).extract(),
       )
@@ -118,7 +118,7 @@ export async function main(options: Options) {
     extractedTexts,
     outputDir,
     outputFileName,
-    outputTranslation,
+    outputJsonMode,
     comment,
     defaultTranslation,
   )

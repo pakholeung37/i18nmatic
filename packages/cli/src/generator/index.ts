@@ -5,7 +5,7 @@ import { merge } from "lodash-es"
 import * as prettier from "prettier"
 import * as path from "path"
 import { ExtractedText } from "../core/type"
-import { OutputTranslation } from "../type"
+import { OutputJsonMode } from "../type"
 
 export class Generator {
   private enablePrettier: boolean
@@ -34,7 +34,7 @@ export class Generator {
     data: ExtractedText[],
     outputDir: string,
     outputFileName: string,
-    outputTranslation: OutputTranslation,
+    outputJsonMode: OutputJsonMode,
     comment: boolean = false,
     defaultTranslation: string = "",
   ): Promise<void> {
@@ -48,12 +48,12 @@ export class Generator {
 
     let finalData = formattedData
 
-    if (outputTranslation === "merge") {
+    if (outputJsonMode === "merge") {
       // merge 模式：读取现有文件并合并
       finalData = this.mergeWithExistingJson(filePath, formattedData)
     }
 
-    if (outputTranslation !== "dry") {
+    if (outputJsonMode !== "dry") {
       // 只有在非 dry 模式下才写入文件
       const json = JSON.stringify(finalData, null, 2).replace(
         /(\s+)"(__comment_\d+)"/g,
