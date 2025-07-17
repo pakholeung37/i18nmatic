@@ -89,7 +89,6 @@ export async function main(options: Options) {
 
   // 추후 여러 언어 동적 할당
   await loader.load((file) => {
-    console.log(`Processing file: ${file.filepath}`)
     try {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
@@ -100,6 +99,7 @@ export async function main(options: Options) {
 
       if (isChanged) {
         generator.generate(transformAst, file.filepath)
+        console.log(`Transformed file: ${file.filepath}`)
       }
 
       extractedTexts.push(

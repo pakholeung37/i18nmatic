@@ -1,76 +1,74 @@
 import { useTranslation, t } from "@terminus/t-console-framework"
-// 한글 테스트용 모음
+// 中文测试用集合
 
-// 1. 함수 선언문 + JSX 안에 직접 한글
+// 1. 函数声明 + JSX 中直接使用中文
 function HelloComponent() {
   const { t } = useTranslation()
-  return <div>{t("안녕하세요2")}</div>
+  return <div>{t("你好2")}</div>
 }
 
-// 2. 함수 선언문 + 변수에 한글 String Literal 할당
+// 2. 函数声明 + 变量赋值中文字符串字面量
 function HelloWorldComponent() {
-  const text = t("안녕하세요")
+  const text = t("你好")
   return <div>{text}</div>
 }
 
-// 3. 암시적 반환 Arrow Function (화살표 함수) + JSX 안에 한글
-//    -> 블록문이 없어, 암시적 반환 테스트 가능
+// 3. 隐式返回箭头函数 + JSX 中的中文
+//    -> 没有块语句，可以测试隐式返回
 const AnotherComponent = () => {
   const { t } = useTranslation()
-  return <span>{t("안녕하세요 스팬입니다")}</span>
+  return <span>{t("你好，这是一个span")}</span>
 }
 
-// 4. 명시적 반환 Arrow Function + JSXText/Attribute 한글
+// 4. 显式返回箭头函数 + JSXText/Attribute 中文
 const AnotherComponent2 = () => {
   const { t } = useTranslation()
-  return (
-    <input type="text" placeholder={t("안녕하세요 여기에 입력해 주세요")} />
-  )
+  return <input type="text" placeholder={t("你好，请在这里输入")} />
 }
 
-// 5. 함수 선언문 + 조건식(삼항 연산자) 내부 한글
+// 5. 函数声明 + 条件表达式(三元运算符) 内部中文
 function ConditionalComponent({ isKorean }) {
   const { t } = useTranslation()
-  return <div>{isKorean ? t("안녕하세요") : "Hello"}</div>
+  return <div>{isKorean ? t("你好") : "Hello"}</div>
 }
 
-// 6. 템플릿 리터럴 + 한글
+// 6. 模板字面量 + 中文
 function TemplateLiteralComponent({ name }) {
   const { t } = useTranslation()
-  // 예: `${name}님 안녕하세요`
-  //    `${user.name}님 ${time}에 만나요` 같은 패턴 테스트 가능
+  // 例如: `${name}，你好`
+  //    `${user.name}，我们${time}见面吧` 这样的模式测试
   return (
     <p>
-      {t("{{name}}님 안녕하세요", {
+      {t("{{name}}，你好", {
         name: name,
       })}
     </p>
   )
 }
 
-// 7. Arrow Function + 여러 String Literal이 한글
+// 7. 箭头函数 + 多个中文字符串字面量
 const MultipleStringLiterals = () => {
   const { t } = useTranslation()
-  const greeting = t("안녕하세요")
-  const message = t("반갑습니다")
+  const greeting = t("你好")
+  const message = t("很高兴见到你")
   return <p>{greeting + ", " + message}</p>
 }
 
-// 8. 함수 표현식 + JSXText 한글
+// 8. 函数表达式 + JSXText 中文
 const ExpressionComponent = function () {
   const { t } = useTranslation()
-  return <p>{t("표현식 컴포넌트: 안녕하세요")}</p>
+  return <p>{t("表达式组件：你好")}</p>
 }
 
-// 9. 함수 선언문 + 여러 한글이 섞인 조건식 + 템플릿 리터럴
+// 9. 函数声明 + 多个中文混合的条件表达式 + 模板字面量
 function ComplexConditional({ isMorning, user }) {
   const { t } = useTranslation()
-  // 삼항 연산자 + 템플릿 리터럴
-  // 한국어 / 영어 혼합
-  const timeStr = isMorning ? t("아침") : t("오후")
+  // 三元运算符 + 模板字面量
+  // 中文 / 英语混合
+  const timeStr = isMorning ? t("上午") : t("下午")
   return (
     <div>
-      {t("{{user.name}}님, 지금은 {{timeStr}}입니다. Hello!", {
+      {t("{{user.name}}，现在是{{timeStr}}。Hello!", {
         "user.name": user.name,
         timeStr: timeStr,
       })}
@@ -78,50 +76,50 @@ function ComplexConditional({ isMorning, user }) {
   )
 }
 
-// 10. 내부 중첩 함수에도 한글이 있는 경우
-//     (최상위 함수인지 아닌지 판단용)
+// 10. 内部嵌套函数也有中文的情况
+//     (用于判断是否为顶级函数)
 const NestedFunction = () => {
   const { t } = useTranslation()
-  // 최상위가 아닌 내부 함수
+  // 不是顶级的内部函数
   function inner() {
-    // 한글 String Literal
-    return t("이건 내부 함수의 한글")
+    // 中文字符串字面量
+    return t("这是内部函数的中文")
   }
   return <div>{inner()}</div>
 }
 
-// 11. 한글이 전혀 없는 컴포넌트 (변환되지 않아야 함)
+// 11. 完全没有中文的组件 (不应该被转换)
 function NoKoreanComponent() {
   return <div>Hello only, no Korean here</div>
 }
 
-// 12. 암시적 반환 Arrow Function + JSXText + 삼항연산자 동시
+// 12. 隐式返回箭头函数 + JSXText + 三元运算符同时
 const ComplexArrow = ({ isHello }) => {
   const { t } = useTranslation()
   return isHello ? (
-    <div>{t("안녕하세요 - 삼항연산자")}</div>
+    <div>{t("你好 - 三元运算符")}</div>
   ) : (
     <div>Hello - ternary</div>
   )
 }
 
-// 13. 함수 선언문 + JSX Attribute 2개
+// 13. 函数声明 + JSX Attribute 2个
 function DoubleAttributeComponent() {
   const { t } = useTranslation()
   return (
-    <section title={t("안녕하세요 타이틀")} aria-label={t("한글 라벨")}>
-      <p>{t("한글 paragraph")}</p>
+    <section title={t("你好标题")} aria-label={t("中文标签")}>
+      <p>{t("中文段落")}</p>
     </section>
   )
 }
 
-// 14. 화살표 함수 + 복합 템플릿 리터럴 (표현식, 한글, 영어 혼합)
-//    ex) `${user.name}님, 오늘은 ${date} 입니다. Have a good day!`
+// 14. 箭头函数 + 复合模板字面量 (表达式、中文、英语混合)
+//    例如) `${user.name}，今天是 ${date}。Have a good day!`
 const MixedTemplate = ({ user, date }) => {
   const { t } = useTranslation()
   return (
     <div>
-      {t("{{user.name}}님, 오늘은 {{date}} 입니다. Have a good day!", {
+      {t("{{user.name}}，今天是 {{date}}。Have a good day!", {
         "user.name": user.name,
         date: date,
       })}
@@ -129,15 +127,15 @@ const MixedTemplate = ({ user, date }) => {
   )
 }
 
-// 15. (옵션) 함수 선언문 + JSX + Template Literal 내부에 TSType (타입 정보)
-//    -> 실무에서 타입이 혼합될 수 있는 케이스 (아주 드묾)
-//    -> 여기서 작성해두면 TSType 스킵 로직도 테스트 가능
+// 15. (可选) 函数声明 + JSX + Template Literal 内部有TSType (类型信息)
+//    -> 实际工作中类型可能混合的情况 (非常罕见)
+//    -> 在这里写出来也可以测试TSType跳过逻辑
 function TypeAnnotatedTemplate<T>(value: T) {
   const { t } = useTranslation()
-  // 예: `${value as string}님 - 한글`
+  // 例如: `${value as string} - 中文`
   return (
     <div>
-      {t("{{value}}님 - 한글", {
+      {t("{{value}} - 中文", {
         value: value,
       })}
     </div>
@@ -145,18 +143,18 @@ function TypeAnnotatedTemplate<T>(value: T) {
 }
 
 /**
- * 위 16가지 함수/컴포넌트는
- * 1) 함수 선언문
- * 2) 함수 표현식
- * 3) 화살표 함수 (암시적/명시적 반환)
- * 4) 삼항 연산자
- * 5) 템플릿 리터럴
+ * 以上16种函数/组件涵盖了
+ * 1) 函数声明
+ * 2) 函数表达式
+ * 3) 箭头函数 (隐式/显式返回)
+ * 4) 三元运算符
+ * 5) 模板字面量
  * 6) JSXText / JSX Attribute
- * 7) 여러 String Literal
- * 8) 내부 중첩 함수
- * 9) TypeScript 타입 (아주 드문 케이스)
- * 등에 대한 한글 포함 사례를 커버합니다.
+ * 7) 多个字符串字面量
+ * 8) 内部嵌套函数
+ * 9) TypeScript 类型 (非常罕见的情况)
+ * 等包含中文的用例。
  *
- * - 이 파일 전체를 Babel로 파싱한 뒤, 한꺼번에 테스트하면
- *   대부분의 한글 변환 케이스를 한 번에 확인할 수 있습니다.
+ * - 用Babel解析整个文件后，一次性测试
+ *   可以一次性确认大部分中文转换用例。
  */

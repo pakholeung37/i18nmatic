@@ -1,15 +1,15 @@
-const ERROR_MESSAGE = "잠시후 다시 시도해주세요"
+const ERROR_MESSAGE = "请稍后再试"
 const review = {
   id: 1,
-  name: "테스트",
+  name: "测试",
 }
 const reviews = [
   {
     id: 1,
-    name: "김X님",
+    name: "张先生",
   },
   {
     id: 2,
-    name: "양X님",
+    name: "李女士",
   },
 ]
