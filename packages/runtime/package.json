@@ -1,0 +1,40 @@
+{
+  "name": "@terminus/i18n-runtime",
+  "version": "1.0.7",
+  "description": "i18n runtime library for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "prepublishOnly": "pnpm build",
+    "test": "vitest",
+    "prebuild": "rm -rf dist",
+    "test:cov": "vitest --coverage",
+    "auto-i18n": "auto-i18n"
+  },
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "react",
+    "nextjs",
+    "cli",
+    "automation",
+    "translation",
+    "babel",
+    "typescript"
+  ],
+  "author": "pakholeung",
+  "license": "MIT",
+  "dependencies": {
+    "react-i18next": "^15.0.0",
+    "i18next": "^25.0.0"
+  },
+  "peerDependencies": {
+    "react": "*"
+  }
+}
