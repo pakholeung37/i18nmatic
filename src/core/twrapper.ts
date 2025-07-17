@@ -1,19 +1,19 @@
-import generate from "@babel/generator";
-import { NodePath } from "@babel/traverse";
-import * as t from "@babel/types";
-import { HookContextNode } from "./type";
-import { getTemplateLiteralKey } from "../common";
+import generate from '@babel/generator'
+import { NodePath } from '@babel/traverse'
+import * as t from '@babel/types'
+import { HookContextNode } from './type'
+import { getTemplateLiteralKey } from '../common'
 
 export class TWrapper {
   constructor(
     private readonly paths: NodePath<HookContextNode>[],
-    private readonly checkLanguage: (text: string) => boolean
+    private readonly checkLanguage: (text: string) => boolean,
   ) {}
 
   wrap() {
-    this.wrapStringLiteral();
-    this.wrapJSXText();
-    this.wrapTemplateLiteral();
+    this.wrapStringLiteral()
+    this.wrapJSXText()
+    this.wrapTemplateLiteral()
   }
 
   /**
@@ -25,23 +25,23 @@ export class TWrapper {
       path.traverse({
         StringLiteral: (path: NodePath<t.StringLiteral>) => {
           if (this.aleadlyWrappedStringLiteral(path)) {
-            return;
+            return
           }
 
           if (this.checkLanguage(path.node.value)) {
-            const newCallExpr = t.callExpression(t.identifier("t"), [
+            const newCallExpr = t.callExpression(t.identifier('t'), [
               t.stringLiteral(path.node.value),
-            ]);
+            ])
 
             if (t.isJSXAttribute(path.parent)) {
-              path.parent.value = t.jsxExpressionContainer(newCallExpr);
+              path.parent.value = t.jsxExpressionContainer(newCallExpr)
             } else {
-              path.replaceWith(newCallExpr);
+              path.replaceWith(newCallExpr)
             }
           }
         },
-      });
-    });
+      })
+    })
   }
 
   /**
@@ -54,66 +54,66 @@ export class TWrapper {
       path.traverse({
         JSXText: (jsxTextPath: NodePath<t.JSXText>) => {
           if (this.alreadyWrappedJSX(jsxTextPath)) {
-            return;
+            return
           }
-          const text = jsxTextPath.node.value;
+          const text = jsxTextPath.node.value
           // 필요에 따라 공백을 제거(여기서는 trim 후 빈 문자열이면 패스)
-          const trimmed = text.trim();
+          const trimmed = text.trim()
           if (trimmed && this.checkLanguage(trimmed)) {
-            const newCallExpr = t.callExpression(t.identifier("t"), [
+            const newCallExpr = t.callExpression(t.identifier('t'), [
               t.stringLiteral(trimmed),
-            ]);
-            const jsxExprContainer = t.jsxExpressionContainer(newCallExpr);
-            jsxTextPath.replaceWith(jsxExprContainer);
+            ])
+            const jsxExprContainer = t.jsxExpressionContainer(newCallExpr)
+            jsxTextPath.replaceWith(jsxExprContainer)
           }
         },
-      });
-    });
+      })
+    })
   }
 
   wrapTemplateLiteral(): void {
     this.paths.forEach((path) => {
       path.traverse({
         TemplateLiteral: (tplPath: NodePath<t.TemplateLiteral>) => {
-          const { translationKey, properties } = getTemplateLiteralKey(tplPath);
+          const { translationKey, properties } = getTemplateLiteralKey(tplPath)
 
           // 템플릿 리터럴 전체 텍스트(translationKey)에 한글이 포함되어 있는지 검사
           if (!this.checkLanguage(translationKey)) {
             // 한글이 없다면 변환하지 않고 그대로 둠
-            return;
+            return
           }
 
-          const objExpr = t.objectExpression(properties);
-          const callExpr = t.callExpression(t.identifier("t"), [
+          const objExpr = t.objectExpression(properties)
+          const callExpr = t.callExpression(t.identifier('t'), [
             t.stringLiteral(translationKey),
             objExpr,
-          ]);
+          ])
 
-          tplPath.replaceWith(callExpr);
+          tplPath.replaceWith(callExpr)
         },
-      });
-    });
+      })
+    })
   }
 
   private aleadlyWrappedStringLiteral(path: NodePath): boolean {
     return (
       t.isCallExpression(path.parent) &&
       t.isIdentifier(path.parent.callee) &&
-      path.parent.callee.name === "t"
-    );
+      path.parent.callee.name === 't'
+    )
   }
 
   private alreadyWrappedJSX(path: NodePath): boolean {
     if (t.isJSXExpressionContainer(path.parent)) {
-      const expr = path.parent.expression;
+      const expr = path.parent.expression
       if (
         t.isCallExpression(expr) &&
         t.isIdentifier(expr.callee) &&
-        expr.callee.name === "t"
+        expr.callee.name === 't'
       ) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   }
 }

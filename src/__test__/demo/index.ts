@@ -5,21 +5,21 @@ export const hookDeclaration = `
 function useMyHook1() {
   return { value: 42 };
 }
-`;
+`
 
 // 2. 표현식 훅 (FunctionExpression)
 export const hookExpression = `
 const useMyHook2 = function() {
   return { value: 42 };
 };
-`;
+`
 
 // 3. 화살표 함수 훅 (ArrowFunctionExpression)
 export const hookArrow = `
 const useMyHook3 = () => {
   return { value: 42 };
 };
-`;
+`
 
 // 컴포넌트(Component) 버전
 
@@ -28,28 +28,28 @@ export const componentDeclaration = `
 function MyComponent1() {
   return <div>Hello, world!</div>;
 }
-`;
+`
 
 // 5. 표현식 컴포넌트 (FunctionExpression)
 export const componentExpression = `
 const MyComponent2 = function() {
   return <div>Hello, world!</div>;
 };
-`;
+`
 
 // 6. 화살표 함수 컴포넌트 (ArrowFunctionExpression)
 export const componentArrow = `
 const MyComponent3 = () => {
   return <div>Hello, world!</div>;
 };
-`;
+`
 
 // 7. 그냥 함수
 export const helperFunction = `
 function helperFunction() {
   return 42;
 }
-`;
+`
 
 export const allCasesDemo = `
   const user = { name: "Lee" };
@@ -74,4 +74,4 @@ export const allCasesDemo = `
       </div>
     );
   }
-`;
+`
