@@ -1,8 +1,8 @@
 import generate from "@babel/generator"
-import t from "@babel/types"
-import fs from "fs"
-import path from "path"
-import { merge } from 'lodash'
+import * as t from "@babel/types"
+import * as fs from "fs"
+import * as path from "path"
+import merge from "lodash/merge"
 import prettier from "prettier"
 import { ExtractedText } from "../core/type"
 import { OutputJsonMode } from "../type"
@@ -195,4 +195,4 @@ export class Generator {
     // 如果文件不存在或读取失败，返回新数据
     return newData
   }
-}
+} 

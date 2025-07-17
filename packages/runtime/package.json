@@ -14,7 +14,7 @@
     "prebuild": "rm -rf dist",
     "prepublishOnly": "pnpm build",
     "test": "vitest",
-    "publish": "pnpm publish -r --registry=https://registry.npm.terminus.io/ --no-git-checks"
+    "publish": "pnpm publish --registry=https://registry.npm.terminus.io/ --no-git-checks"
   },
   "keywords": [
     "i18n",
