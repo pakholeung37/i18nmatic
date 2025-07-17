@@ -4,7 +4,6 @@
   "defaultTranslation": "",
   "locales": ["en_US"],
   "include": ["samples"],
-  "exclude": ["palin.tsx"],
   "ext": ["js", "jsx", "ts", "tsx"],
   "dry": true,
   "outputDir": "public/locales",

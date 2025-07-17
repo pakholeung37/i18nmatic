@@ -35,11 +35,11 @@ interface Options {
   defaultTranslation?: string
 }
 
-const defaultOptions: Options = {
-  importModuleName: "react-i18next",
+export const defaultOptions: Options = {
+  importModuleName: "@terminus/t-i18n",
   useHook: false,
   keyLanguage: "zh",
-  include: "samples",
+  include: "./**/*",
   exclude: ["node_modules", "dist", "build", "test"],
   ext: ["js", "jsx", "ts", "tsx"],
   dry: false,
@@ -51,7 +51,7 @@ const defaultOptions: Options = {
   defaultTranslation: "",
 }
 
-export async function main(options: Options) {
+export async function main(options: Options & { extractOnly?: boolean }) {
   const runtimeOptions = {
     ...defaultOptions,
     ...options,
@@ -97,17 +97,13 @@ export async function main(options: Options) {
         useHook,
       )
 
-      if (isChanged) {
+      if (isChanged && !runtimeOptions.extractOnly) {
         generator.generate(transformAst, file.filepath)
         console.log(`Transformed file: ${file.filepath}`)
       }
 
       extractedTexts.push(
-        ...new Extractor(
-          file.ast,
-          checkLanguage,
-          file.filepath,
-        ).extract(),
+        ...new Extractor(file.ast, checkLanguage, file.filepath).extract(),
       )
     } catch (error) {
       handleParseError(error, file.filepath)

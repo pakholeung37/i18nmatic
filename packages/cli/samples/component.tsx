@@ -9,6 +9,7 @@ function HelloComponent() {
 // 2. 函数声明 + 变量赋值中文字符串字面量
 function HelloWorldComponent() {
   const text = "你好"
+
   return <div>{text}</div>
 }
 
