@@ -143,22 +143,16 @@ export class Insertion {
   }
 
   private findInsertPosition(programPath: NodePath<t.Program>): number {
-    // 找到最后一个 import 语句的位置
-    let lastImportIndex = -1
-
+    // 找到第一个 import 语句的位置，新的 import 将插入到所有现有 import 的前面
     for (let i = 0; i < programPath.node.body.length; i++) {
       const stmt = programPath.node.body[i]
       if (t.isImportDeclaration(stmt)) {
-        lastImportIndex = i
-      } else {
-        // 遇到第一个非 import 语句就停止
-        break
+        return i // 返回第一个 import 语句的位置
       }
     }
 
-    // 如果找到了 import 语句，在最后一个 import 之后插入
     // 如果没有找到 import 语句，在文件开头插入
-    return lastImportIndex >= 0 ? lastImportIndex + 1 : 0
+    return 0
   }
 
   wrapFunctionsWithBlockStatement() {

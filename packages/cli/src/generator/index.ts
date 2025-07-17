@@ -1,9 +1,9 @@
 import generate from "@babel/generator"
-import * as t from "@babel/types"
-import * as fs from "fs"
-import { merge } from "lodash-es"
-import * as prettier from "prettier"
-import * as path from "path"
+import t from "@babel/types"
+import fs from "fs"
+import path from "path"
+import { merge } from 'lodash'
+import prettier from "prettier"
 import { ExtractedText } from "../core/type"
 import { OutputJsonMode } from "../type"
 
@@ -44,7 +44,7 @@ export class Generator {
       defaultTranslation,
     )
 
-    const filePath = `${outputDir}/${outputFileName}`
+    const filePath = path.resolve(outputDir, outputFileName)
 
     let finalData = formattedData
 

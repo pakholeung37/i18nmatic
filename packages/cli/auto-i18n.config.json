@@ -10,5 +10,5 @@
   "enablePrettier": true,
   "outputFileName": "en_US.json",
   "keyLanguage": "zh",
-  "outputTranslation": "merge"
+  "outputJsonMode": "merge"
 }

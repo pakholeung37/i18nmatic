@@ -4,9 +4,10 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["ESNext", "DOM"],
+    "outDir": "dist",
     "types": ["node", "vitest"],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true
   }
 }
