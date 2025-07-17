@@ -21,8 +21,6 @@ program
       ...configFileOptions,
     }
 
-    console.log("🔧 Final Options:", runtimeOptions)
-
     main(runtimeOptions)
   })
 

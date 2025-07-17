@@ -1,6 +1,7 @@
 import generate from "@babel/generator"
 import * as t from "@babel/types"
 import * as fs from "fs"
+import { merge } from "lodash-es"
 import * as prettier from "prettier"
 import * as path from "path"
 import { ExtractedText } from "../core/type"
@@ -9,6 +10,7 @@ import { OutputTranslation } from "../type"
 export class Generator {
   private enablePrettier: boolean
   private dry: boolean | undefined
+  private useHook: boolean | undefined
   constructor({
     enablePrettier,
     dry,
@@ -30,7 +32,6 @@ export class Generator {
 
   async generateJson(
     data: ExtractedText[],
-    locales: string[],
     outputDir: string,
     outputFileName: string,
     outputTranslation: OutputTranslation,
@@ -43,25 +44,23 @@ export class Generator {
       defaultTranslation,
     )
 
-    locales.forEach((locale) => {
-      const filePath = `${outputDir}/${locale}/${outputFileName}`
+    const filePath = `${outputDir}/${outputFileName}`
 
-      let finalData = formattedData
+    let finalData = formattedData
 
-      if (outputTranslation === "merge") {
-        // merge 模式：读取现有文件并合并
-        finalData = this.mergeWithExistingJson(filePath, formattedData)
-      }
+    if (outputTranslation === "merge") {
+      // merge 模式：读取现有文件并合并
+      finalData = this.mergeWithExistingJson(filePath, formattedData)
+    }
 
-      if (outputTranslation !== "dry") {
-        // 只有在非 dry 模式下才写入文件
-        const json = JSON.stringify(finalData, null, 2).replace(
-          /(\s+)"(__comment_\d+)"/g,
-          '\n$1"$2"',
-        )
-        this.writeFile(json, filePath)
-      }
-    })
+    if (outputTranslation !== "dry") {
+      // 只有在非 dry 模式下才写入文件
+      const json = JSON.stringify(finalData, null, 2).replace(
+        /(\s+)"(__comment_\d+)"/g,
+        '\n$1"$2"',
+      )
+      this.writeFile(json, filePath)
+    }
   }
 
   private generateCode(ast: t.File): string {
@@ -181,8 +180,10 @@ export class Generator {
         const existingContent = fs.readFileSync(filePath, "utf8")
         const existingData = JSON.parse(existingContent)
 
-        // 合并数据：新数据会覆盖现有数据中的相同 key
-        return { ...newData, ...existingData }
+        // 自定义合并策略：如果 existingData 的 value 存在且不为空则保留，newData 新增在旧数据后面
+        const mergedData = merge({}, existingData, newData, existingData)
+
+        return mergedData
       }
     } catch (error) {
       console.warn(

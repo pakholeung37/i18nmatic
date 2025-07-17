@@ -6,7 +6,8 @@ import * as t from "@babel/types"
 export function transform(
   ast: t.File,
   checkLanguage: (text: string) => boolean,
-  importFromName: string = "react-i18next",
+  importModuleName: string = "react-i18next",
+  useHook: boolean = false,
 ): {
   ast: t.File
   isChanged: boolean
@@ -15,11 +16,12 @@ export function transform(
 
   const wrapper = new TWrapper(hookContextNodes, checkLanguage)
 
-  wrapper.wrap()
 
-  const insertion = new Insertion(hookContextNodes, ast, importFromName)
+  const isWrappedChanged = wrapper.wrap()
 
-  const isChanged = insertion.insert()
+  const insertion = new Insertion(hookContextNodes, ast, importModuleName, useHook)
 
-  return { ast, isChanged }
+  const isInsertChanged = insertion.insert()
+
+  return { ast, isChanged: isWrappedChanged || isInsertChanged }
 }

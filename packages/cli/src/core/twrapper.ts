@@ -1,19 +1,22 @@
-import generate from "@babel/generator"
 import { NodePath } from "@babel/traverse"
 import * as t from "@babel/types"
 import { HookContextNode } from "./type"
 import { getTemplateLiteralKey } from "../common"
 
 export class TWrapper {
+  private hasChanges = false
+
   constructor(
     private readonly paths: NodePath<HookContextNode>[],
     private readonly checkLanguage: (text: string) => boolean,
   ) {}
 
-  wrap() {
+  wrap(): boolean {
+    this.hasChanges = false
     this.wrapStringLiteral()
     this.wrapJSXText()
     this.wrapTemplateLiteral()
+    return this.hasChanges
   }
 
   /**
@@ -38,6 +41,7 @@ export class TWrapper {
             } else {
               path.replaceWith(newCallExpr)
             }
+            this.hasChanges = true
           }
         },
       })
@@ -65,6 +69,7 @@ export class TWrapper {
             ])
             const jsxExprContainer = t.jsxExpressionContainer(newCallExpr)
             jsxTextPath.replaceWith(jsxExprContainer)
+            this.hasChanges = true
           }
         },
       })
@@ -90,6 +95,7 @@ export class TWrapper {
           ])
 
           tplPath.replaceWith(callExpr)
+          this.hasChanges = true
         },
       })
     })

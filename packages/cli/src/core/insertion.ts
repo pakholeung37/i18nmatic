@@ -4,19 +4,17 @@ import * as t from "@babel/types"
 import { find, has } from "../common"
 
 export class Insertion {
-  private importModuleName: string
   constructor(
     private readonly paths: NodePath<HookContextNode>[],
     private readonly parsedFileAST: t.File,
-    importFromName: string = "react-i18next",
-  ) {
-    this.importModuleName = importFromName
-  }
+    private importModuleName: string = "react-i18next",
+    private useHook: boolean = false,
+  ) {}
 
   insert() {
     try {
       this.wrapFunctionsWithBlockStatement()
-      const isChanged = this.insertUseTranslationHook()
+      const isChanged = this.useHook ? this.insertUseTranslationHook() : false
       this.insertImportDeclartion()
 
       return isChanged
@@ -43,40 +41,42 @@ export class Insertion {
     // 查找现有的 import 语句
     const existingImport = this.findExistingImport(programPath)
 
-    if (existingImport) {
-      // 如果已经存在该模块的 import，检查是否已经导入了 useTranslation
-      if (!this.hasUseTranslationImport(existingImport)) {
-        // 添加 useTranslation 到现有的 import 中
-        this.addUseTranslationToExistingImport(existingImport)
+    if (this.useHook) {
+      // 使用 Hook 模式：导入 useTranslation
+      if (existingImport) {
+        // 如果已经存在该模块的 import，检查是否已经导入了 useTranslation
+        if (!this.hasIdentifierImport(existingImport, "useTranslation")) {
+          // 添加 useTranslation 到现有的 import 中
+          this.addIdentifierToExistingImport(existingImport, "useTranslation")
+        }
+      } else {
+        // 如果不存在该模块的 import，创建新的 import 语句
+        const importDeclaration = t.importDeclaration(
+          [
+            t.importSpecifier(
+              t.identifier("useTranslation"),
+              t.identifier("useTranslation"),
+            ),
+          ],
+          t.stringLiteral(this.importModuleName),
+        )
+        this.insertImportAtPosition(programPath, importDeclaration)
       }
     } else {
-      // 如果不存在该模块的 import，创建新的 import 语句
-      const importDeclaration = t.importDeclaration(
-        [
-          t.importSpecifier(
-            t.identifier("useTranslation"),
-            t.identifier("useTranslation"),
-          ),
-        ],
-        t.stringLiteral(this.importModuleName),
-      )
-
-      // 找到第一个非 import 语句的位置
-      const insertIndex = this.findInsertPosition(programPath)
-
-      // 在指定位置插入 import 语句
-      if (insertIndex === 0) {
-        // 如果要插入到最前面，使用 unshiftContainer
-        programPath.unshiftContainer("body", importDeclaration)
-      } else {
-        // 如果要插入到其他位置，使用 insertAfter
-        const bodyPaths = programPath.get("body")
-        if (Array.isArray(bodyPaths) && bodyPaths[insertIndex - 1]) {
-          bodyPaths[insertIndex - 1].insertAfter(importDeclaration)
-        } else {
-          // 回退到使用 unshiftContainer
-          programPath.unshiftContainer("body", importDeclaration)
+      // 直接导入 t 模式
+      if (existingImport) {
+        // 如果已经存在该模块的 import，检查是否已经导入了 t
+        if (!this.hasIdentifierImport(existingImport, "t")) {
+          // 添加 t 到现有的 import 中
+          this.addIdentifierToExistingImport(existingImport, "t")
         }
+      } else {
+        // 如果不存在该模块的 import，创建新的 import 语句
+        const importDeclaration = t.importDeclaration(
+          [t.importSpecifier(t.identifier("t"), t.identifier("t"))],
+          t.stringLiteral(this.importModuleName),
+        )
+        this.insertImportAtPosition(programPath, importDeclaration)
       }
     }
   }
@@ -95,23 +95,48 @@ export class Insertion {
     return null
   }
 
-  private hasUseTranslationImport(
+  private insertImportAtPosition(
+    programPath: NodePath<t.Program>,
     importDeclaration: t.ImportDeclaration,
+  ): void {
+    // 找到第一个非 import 语句的位置
+    const insertIndex = this.findInsertPosition(programPath)
+
+    // 在指定位置插入 import 语句
+    if (insertIndex === 0) {
+      // 如果要插入到最前面，使用 unshiftContainer
+      programPath.unshiftContainer("body", importDeclaration)
+    } else {
+      // 如果要插入到其他位置，使用 insertAfter
+      const bodyPaths = programPath.get("body")
+      if (Array.isArray(bodyPaths) && bodyPaths[insertIndex - 1]) {
+        bodyPaths[insertIndex - 1].insertAfter(importDeclaration)
+      } else {
+        // 回退到使用 unshiftContainer
+        programPath.unshiftContainer("body", importDeclaration)
+      }
+    }
+  }
+
+  private hasIdentifierImport(
+    importDeclaration: t.ImportDeclaration,
+    identifier: string,
   ): boolean {
     return importDeclaration.specifiers.some(
       (spec) =>
         t.isImportSpecifier(spec) &&
         t.isIdentifier(spec.imported) &&
-        spec.imported.name === "useTranslation",
+        spec.imported.name === identifier,
     )
   }
 
-  private addUseTranslationToExistingImport(
+  private addIdentifierToExistingImport(
     importDeclaration: t.ImportDeclaration,
+    identifier: string,
   ): void {
     const useTranslationSpecifier = t.importSpecifier(
-      t.identifier("useTranslation"),
-      t.identifier("useTranslation"),
+      t.identifier(identifier),
+      t.identifier(identifier),
     )
 
     importDeclaration.specifiers.push(useTranslationSpecifier)

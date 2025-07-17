@@ -14,6 +14,7 @@
     "t-i18n-cli": "./bin/cli.js"
   },
   "scripts": {
+    "dev": "tsc --watch",
     "start": "node bin/cli.js",
     "build": "tsc",
     "prepublishOnly": "pnpm build",
@@ -36,20 +37,22 @@
   "author": "pakholeung",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/generator": "^7.26.9",
     "@babel/parser": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
     "@babel/traverse": "^7.26.9",
     "@babel/types": "^7.26.9",
     "commander": "^13.1.0",
     "glob": "^11.0.1",
-    "prettier": "^3.5.3",
-    "@babel/core": "^7.26.9",
-    "@babel/generator": "^7.26.9",
-    "@babel/preset-env": "^7.26.9",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0"
+    "lodash-es": "^4.17.21",
+    "prettier": "^3.5.3"
   },
   "devDependencies": {
-    "@types/babel__traverse": "^7.20.6",
-    "@types/babel__generator": "^7.26.0"
+    "@types/lodash-es": "^4.17.12",
+    "@types/babel__generator": "^7.26.0",
+    "@types/babel__traverse": "^7.20.6"
   }
 }

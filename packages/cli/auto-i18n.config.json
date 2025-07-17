@@ -1,6 +1,7 @@
 {
-  "importFromName": "@terminus/t-console-framework",
-  "defaultTranslation": "insert your translation here",
+  "importModuleName": "@terminus/t-console-framework",
+  "useHook": false,
+  "defaultTranslation": "",
   "locales": ["en_US"],
   "include": ["samples"],
   "exclude": ["palin.tsx"],
@@ -10,5 +11,5 @@
   "enablePrettier": true,
   "outputFileName": "en_US.json",
   "keyLanguage": "ko",
-  "outputTranslation": "create"
+  "outputTranslation": "merge"
 }

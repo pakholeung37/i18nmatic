@@ -7,11 +7,22 @@ import { Extractor } from "./extractor"
 import { ExtractedText } from "./core/type"
 import { KeyLanguage, OutputTranslation } from "./type"
 
-//TODO: 제외 경로 추가, ns 정의
 interface Options {
-  importFromName?: string
+  /**
+   * 指定 import from 包名, default "react-i18next"
+   */
+  importModuleName?: string
+  /**
+   * 是否使用 use hook, 如果不使用将会使用 t 函数而不是 useTranslation hook. default false
+   */
+  useHook?: boolean
+  /**
+   * 指定 key 语言, default "zh"
+   */
   keyLanguage: KeyLanguage
-  locales: string[]
+  /**
+   *
+   */
   outputDir: string
   include: string | string[]
   exclude?: string | string[]
@@ -25,15 +36,15 @@ interface Options {
 }
 
 const defaultOptions: Options = {
-  importFromName: "react-i18next",
-  locales: ["en_US"],
+  importModuleName: "react-i18next",
+  useHook: false,
+  keyLanguage: "zh",
   include: "samples",
   exclude: ["node_modules", "dist", "build", "test"],
   ext: ["js", "jsx", "ts", "tsx"],
   dry: false,
   outputDir: "public/locales",
   enablePrettier: true,
-  keyLanguage: "ko",
   outputFileName: "en_US.json",
   outputTranslation: "create",
   comment: false,
@@ -41,13 +52,19 @@ const defaultOptions: Options = {
 }
 
 export async function main(options: Options) {
+  const runtimeOptions = {
+    ...defaultOptions,
+    ...options,
+  }
+  console.log("🔧 Final Options:", runtimeOptions)
+
   const {
     include,
     exclude,
     ext,
-    locales,
+    useHook,
     outputDir,
-    importFromName,
+    importModuleName,
     enablePrettier,
     outputFileName,
     keyLanguage,
@@ -55,16 +72,16 @@ export async function main(options: Options) {
     outputTranslation,
     comment,
     defaultTranslation,
-  } = { ...defaultOptions, ...options }
+  } = runtimeOptions
 
   const loader = new Loader({
-    include: include,
-    exclude: exclude,
-    ext: ext,
+    include,
+    exclude,
+    ext,
   })
 
   const generator = new Generator({
-    enablePrettier: enablePrettier,
+    enablePrettier,
     dry,
   })
 
@@ -77,7 +94,8 @@ export async function main(options: Options) {
       const { ast: transformAst, isChanged } = core.transform(
         file.ast,
         createLanguageCheckFunction(keyLanguage),
-        importFromName || "react-i18next",
+        importModuleName || "react-i18next",
+        useHook,
       )
 
       if (isChanged) {
@@ -98,7 +116,6 @@ export async function main(options: Options) {
 
   generator.generateJson(
     extractedTexts,
-    locales,
     outputDir,
     outputFileName,
     outputTranslation,

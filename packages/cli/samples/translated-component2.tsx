@@ -1,4 +1,4 @@
-import { B, t } from "@terminus/t-console-framework"
+import { t } from "@terminus/t-console-framework"
 // 한글 테스트용 모음
 
 // 1. 함수 선언문 + JSX 안에 직접 한글
