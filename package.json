@@ -1,5 +1,5 @@
 {
-  "name": "@pakholeung37/i18nmatic",
+  "name": "i18n-monorepo",
   "version": "1.0.7",
   "description": "CLI tool for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects",
   "main": "dist/index.js",

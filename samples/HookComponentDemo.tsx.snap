@@ -1,8 +1,8 @@
-import { useTranslation } from "next-i18next";
 // src/demo/HookComponentDemo.tsx
 import React from "react";
 
 // 사용자 정의 훅 예제
+import { useTranslation } from "@terminus/t-console-framework";
 export const useCustomHook = () => {
   const { t } = useTranslation();
   return t("안녕하세요");
