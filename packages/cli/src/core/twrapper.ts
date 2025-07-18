@@ -26,20 +26,33 @@ export class TWrapper {
   wrapStringLiteral(): void {
     this.paths.forEach((path) => {
       path.traverse({
-        StringLiteral: (path: NodePath<t.StringLiteral>) => {
-          if (this.aleadlyWrappedStringLiteral(path)) {
+        StringLiteral: (stringPath: NodePath<t.StringLiteral>) => {
+          if (this.aleadlyWrappedStringLiteral(stringPath)) {
             return
           }
 
-          if (this.checkLanguage(path.node.value)) {
+          // 如果当前路径是Program节点，需要过滤掉函数内部的字符串
+          if (t.isProgram(path.node)) {
+            // 检查字符串是否在函数内部
+            if (this.isStringInFunction(stringPath)) {
+              return
+            }
+
+            // 跳过import/export等不应该被转换的字符串
+            if (this.shouldSkipStringLiteral(stringPath)) {
+              return
+            }
+          }
+
+          if (this.checkLanguage(stringPath.node.value)) {
             const newCallExpr = t.callExpression(t.identifier("t"), [
-              t.stringLiteral(path.node.value),
+              t.stringLiteral(stringPath.node.value),
             ])
 
-            if (t.isJSXAttribute(path.parent)) {
-              path.parent.value = t.jsxExpressionContainer(newCallExpr)
+            if (t.isJSXAttribute(stringPath.parent)) {
+              stringPath.parent.value = t.jsxExpressionContainer(newCallExpr)
             } else {
-              path.replaceWith(newCallExpr)
+              stringPath.replaceWith(newCallExpr)
             }
             this.hasChanges = true
           }
@@ -60,8 +73,15 @@ export class TWrapper {
           if (this.alreadyWrappedJSX(jsxTextPath)) {
             return
           }
+
+          // 如果当前路径是Program节点，需要过滤掉函数内部的JSXText
+          if (t.isProgram(path.node)) {
+            if (this.isJSXTextInFunction(jsxTextPath)) {
+              return
+            }
+          }
+
           const text = jsxTextPath.node.value
-          // 필요에 따라 공백을 제거(여기서는 trim 후 빈 문자열이면 패스)
           const trimmed = text.trim()
           if (trimmed && this.checkLanguage(trimmed)) {
             const newCallExpr = t.callExpression(t.identifier("t"), [
@@ -80,6 +100,13 @@ export class TWrapper {
     this.paths.forEach((path) => {
       path.traverse({
         TemplateLiteral: (tplPath: NodePath<t.TemplateLiteral>) => {
+          // 如果当前路径是Program节点，需要过滤掉函数内部的TemplateLiteral
+          if (t.isProgram(path.node)) {
+            if (this.isTemplateLiteralInFunction(tplPath)) {
+              return
+            }
+          }
+
           const { translationKey, properties } = getTemplateLiteralKey(tplPath)
 
           // 템플릿 리터럴 전체 텍스트(translationKey)에 한글이 포함되어 있는지 검사
@@ -120,6 +147,75 @@ export class TWrapper {
         return true
       }
     }
+    return false
+  }
+
+  /**
+   * 检查字符串是否在函数内部
+   */
+  private isStringInFunction(stringPath: NodePath<t.StringLiteral>): boolean {
+    return !!stringPath.findParent((p) =>
+      t.isFunctionDeclaration(p.node) ||
+      t.isFunctionExpression(p.node) ||
+      t.isArrowFunctionExpression(p.node)
+    )
+  }
+
+  /**
+   * 检查JSXText是否在函数内部
+   */
+  private isJSXTextInFunction(jsxTextPath: NodePath<t.JSXText>): boolean {
+    return !!jsxTextPath.findParent((p) =>
+      t.isFunctionDeclaration(p.node) ||
+      t.isFunctionExpression(p.node) ||
+      t.isArrowFunctionExpression(p.node)
+    )
+  }
+
+  /**
+   * 检查TemplateLiteral是否在函数内部
+   */
+  private isTemplateLiteralInFunction(tplPath: NodePath<t.TemplateLiteral>): boolean {
+    return !!tplPath.findParent((p) =>
+      t.isFunctionDeclaration(p.node) ||
+      t.isFunctionExpression(p.node) ||
+      t.isArrowFunctionExpression(p.node)
+    )
+  }
+
+  /**
+   * 判断是否应该跳过某些字符串字面量的转换
+   */
+  private shouldSkipStringLiteral(path: NodePath<t.StringLiteral>): boolean {
+    // 跳过import声明中的字符串
+    if (path.findParent((p) => t.isImportDeclaration(p.node))) {
+      return true
+    }
+
+    // 跳过export声明中的字符串
+    if (path.findParent((p) => t.isExportNamedDeclaration(p.node) || t.isExportAllDeclaration(p.node))) {
+      return true
+    }
+
+    // 跳过require调用中的字符串
+    if (path.findParent((p) =>
+      t.isCallExpression(p.node) &&
+      t.isIdentifier(p.node.callee) &&
+      p.node.callee.name === "require"
+    )) {
+      return true
+    }
+
+    // 跳过对象的key（属性名）
+    if (t.isObjectProperty(path.parent) && path.parent.key === path.node) {
+      return true
+    }
+
+    // 跳过TypeScript类型断言等
+    if (path.findParent((p) => t.isTSTypeAnnotation(p.node) || t.isTSAsExpression(p.node))) {
+      return true
+    }
+
     return false
   }
 }

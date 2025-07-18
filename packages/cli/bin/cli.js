@@ -30,6 +30,7 @@ function addCommonOptions(command) {
     .option("--output-json-mode <mode>", "JSON output mode (create or merge)")
     .option("--comment", "Add comments to extracted text in JSON")
     .option("--default-translation <text>", "Default translation for new keys")
+    .option("--aggressive", "Transform all strings, not just React components and hooks")
 }
 
 program

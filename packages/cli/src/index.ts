@@ -21,6 +21,10 @@ interface Options {
    */
   keyLanguage: KeyLanguage
   /**
+   * 激进模式：对所有字符串进行i18n改造，而不仅仅是React组件和Hook中的字符串, default false
+   */
+  aggressive?: boolean
+  /**
    *
    */
   outputDir: string
@@ -39,6 +43,7 @@ export const defaultOptions: Options = {
   importModuleName: "@terminus/t-i18n",
   useHook: false,
   keyLanguage: "zh",
+  aggressive: false,
   include: "./**/*",
   exclude: ["node_modules", "dist", "build", "test"],
   ext: ["js", "jsx", "ts", "tsx"],
@@ -72,6 +77,7 @@ export async function main(options: Options & { extractOnly?: boolean }) {
     outputJsonMode,
     comment,
     defaultTranslation,
+    aggressive,
   } = runtimeOptions
 
   const loader = new Loader({
@@ -95,6 +101,7 @@ export async function main(options: Options & { extractOnly?: boolean }) {
         checkLanguage,
         importModuleName,
         useHook,
+        aggressive,
       )
 
       if (isChanged && !runtimeOptions.extractOnly) {
@@ -103,7 +110,9 @@ export async function main(options: Options & { extractOnly?: boolean }) {
       }
 
       extractedTexts.push(
-        ...new Extractor(file.ast, checkLanguage, file.filepath).extract(),
+        ...new Extractor(file.ast, checkLanguage, file.filepath)
+          .extract()
+          .filter((r) => r.isTWrapped),
       )
     } catch (error) {
       handleParseError(error, file.filepath)

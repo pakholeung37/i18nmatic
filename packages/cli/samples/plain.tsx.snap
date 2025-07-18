@@ -1,0 +1,16 @@
+import { useTranslation } from "@terminus/t-console-framework"
+const ERROR_MESSAGE = t("请稍后再试")
+const review = {
+  id: 1,
+  name: t("测试"),
+}
+const reviews = [
+  {
+    id: 1,
+    name: t("张先生"),
+  },
+  {
+    id: 2,
+    name: t("李女士"),
+  },
+]

@@ -9,5 +9,6 @@
   "enablePrettier": true,
   "outputFileName": "en-US.json",
   "keyLanguage": "zh",
-  "outputJsonMode": "merge"
+  "outputJsonMode": "create",
+  "aggressive": false
 }

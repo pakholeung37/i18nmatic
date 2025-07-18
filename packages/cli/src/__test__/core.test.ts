@@ -354,7 +354,7 @@ describe("TWrapper", () => {
     // 1. AST 파싱
     const code = `
       function TypeAnnotatedTemplate<T>(value: T) {
-      
+
       return <div>{\`\${value as string}님 - 한글\`}</div>;
       }
     `
@@ -484,9 +484,9 @@ describe("Insertion", () => {
             <button onClick={handleClick}>t('안녕하세요')</button>
           );
         }
-  
+
         const Component2 = () => <button onClick={handleClick}>{t('안녕하세요')}</button>
-        
+
       `
     const ast = parser.parse(code, {
       sourceType: "module",
@@ -840,5 +840,182 @@ describe("Template Literal and JSX Attribute Transformation (global)", () => {
     }).code
 
     expect(output).toContain('placeholder={t("Please enter your name")}')
+  })
+})
+
+describe("Aggressive Mode", () => {
+  it("should transform all Chinese strings in aggressive mode, not just in React components", () => {
+    const code = `
+      // 普通函数，不是React组件或Hook
+      function helperFunction() {
+        const message = "这是一个消息";
+        console.log("输出日志");
+        return message;
+      }
+
+      // 变量声明
+      const globalVar = "全局变量";
+
+      // 对象属性
+      const config = {
+        title: "标题",
+        description: "描述"
+      };
+
+      // React组件（正常情况下会被处理）
+      function MyComponent() {
+        return <div>组件文本</div>;
+      }
+    `
+
+    const ast = parseCode(code)
+    const hookContextNodes = core.findHookContextNode(ast)
+
+    // 普通模式：只处理React组件和Hook
+    const normalWrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("zh"),
+    )
+    normalWrapper.wrap()
+
+    const normalOutput = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code
+
+    // 普通模式下，只有React组件中的文本应该被转换
+    expect(normalOutput).toContain('{t("组件文本")}')
+    expect(normalOutput).not.toContain('t("这是一个消息")')
+    expect(normalOutput).not.toContain('t("输出日志")')
+    expect(normalOutput).not.toContain('t("全局变量")')
+
+    // 重新解析代码用于激进模式测试
+    const aggressiveAst = parseCode(code)
+    const aggressiveHookContextNodes = core.findHookContextNode(aggressiveAst)
+
+    // 激进模式：处理所有字符串
+    const aggressiveWrapper = new core.TWrapper(
+      aggressiveHookContextNodes,
+      createLanguageCheckFunction("zh"),
+    )
+    aggressiveWrapper.wrap()
+
+    const aggressiveOutput = generate(aggressiveAst, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code
+
+    // 激进模式下，所有中文字符串都应该被转换
+    expect(aggressiveOutput).toContain('{t("组件文本")}')
+    expect(aggressiveOutput).toContain('t("这是一个消息")')
+    expect(aggressiveOutput).toContain('t("输出日志")')
+    expect(aggressiveOutput).toContain('t("全局变量")')
+    expect(aggressiveOutput).toContain('title: t("标题")')
+    expect(aggressiveOutput).toContain('description: t("描述")')
+  })
+
+  it("should skip import and export statements in aggressive mode", () => {
+    const code = `
+      import { something } from "包含中文的模块名";
+      import "样式文件.css";
+
+      export { 导出函数 } from "模块";
+
+      const message = "这应该被转换";
+      console.log("这也应该被转换");
+    `
+
+    const ast = parseCode(code)
+    const hookContextNodes = core.findHookContextNode(ast)
+
+    const aggressiveWrapper = new core.TWrapper(
+      hookContextNodes,
+      createLanguageCheckFunction("zh"),
+    )
+    aggressiveWrapper.wrap()
+
+    const output = generate(ast, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code
+
+    // import/export中的字符串不应该被转换
+    expect(output).toContain('from "包含中文的模块名"')
+    expect(output).toContain('import "样式文件.css"')
+    expect(output).toContain('from "模块"')
+
+    // 但其他地方的字符串应该被转换
+    expect(output).toContain('t("这应该被转换")')
+    expect(output).toContain('t("这也应该被转换")')
+  })
+
+  it("should work with transform function in aggressive mode", () => {
+    const code = `
+      function regularFunction() {
+        const message = "普通函数中的消息";
+        return message;
+      }
+
+      const MyComponent = () => {
+        return <div>组件消息</div>;
+      }
+    `
+
+    const ast = parseCode(code)
+    const checkLanguage = createLanguageCheckFunction("zh")
+
+    // 测试激进模式的transform函数
+    const { ast: transformedAst, isChanged } = core.transform(
+      ast,
+      checkLanguage,
+      "react-i18next",
+      false, // useHook = false
+      true, // aggressive = true
+    )
+
+    const output = generate(transformedAst, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code
+
+    expect(isChanged).toBe(true)
+    expect(output).toContain('t("普通函数中的消息")')
+    expect(output).toContain('{t("组件消息")}')
+    expect(output).toContain('import { t } from "react-i18next"')
+  })
+
+  it("should not insert useTranslation hook in aggressive mode", () => {
+    const code = `
+      function regularFunction() {
+        const message = "普通函数中的消息";
+        return message;
+      }
+
+      const MyComponent = () => {
+        return <div>组件消息</div>;
+      }
+    `
+
+    const ast = parseCode(code)
+    const checkLanguage = createLanguageCheckFunction("zh")
+
+    // 测试激进模式 + useHook模式（应该不插入hook）
+    const { ast: transformedAst } = core.transform(
+      ast,
+      checkLanguage,
+      "react-i18next",
+      true, // useHook = true
+      true, // aggressive = true
+    )
+
+    const output = generate(transformedAst, {
+      concise: true,
+      jsescOption: { minimal: true },
+    }).code
+
+    // 激进模式下不应该插入useTranslation hook
+    expect(output).not.toContain("useTranslation()")
+    expect(output).toContain('t("普通函数中的消息")')
+    expect(output).toContain('{t("组件消息")}')
   })
 })

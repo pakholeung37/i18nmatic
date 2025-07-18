@@ -9,12 +9,19 @@ export class Insertion {
     private readonly parsedFileAST: t.File,
     private importModuleName: string = "react-i18next",
     private useHook: boolean = false,
+    private aggressive: boolean = false,
   ) {}
 
   insert() {
     try {
       this.wrapFunctionsWithBlockStatement()
-      const isChanged = this.useHook ? this.insertUseTranslationHook() : false
+
+      // 在激进模式下，useHook模式的处理需要特别小心
+      // 因为可能在任何地方都有t()调用，不仅仅是在React组件中
+      const isChanged = this.useHook && !this.aggressive
+        ? this.insertUseTranslationHook()
+        : false
+
       this.insertImportDeclartion()
 
       return isChanged
@@ -34,7 +41,13 @@ export class Insertion {
       throw new Error("Invalid file: Program node not found")
     }
 
-    if (!this.hasTCall(programPath)) {
+    // 在激进模式下，检查整个AST是否有t()调用
+    // 在普通模式下，只检查HookContextNode中是否有t()调用
+    const hasTCall = this.aggressive
+      ? this.hasTCall(programPath)
+      : this.paths.some(path => this.hasTCall(path))
+
+    if (!hasTCall) {
       return
     }
 
@@ -157,6 +170,11 @@ export class Insertion {
 
   wrapFunctionsWithBlockStatement() {
     this.paths.forEach((path) => {
+      // 跳过Program节点
+      if (t.isProgram(path.node)) {
+        return
+      }
+
       if (
         t.isArrowFunctionExpression(path.node) &&
         !t.isBlockStatement(path.node.body)
@@ -190,6 +208,11 @@ export class Insertion {
   private shouldInsertTranslationHook(
     path: NodePath<HookContextNode>,
   ): boolean {
+    // Program节点不需要插入useTranslation hook
+    if (t.isProgram(path.node)) {
+      return false
+    }
+
     return (
       this.isTopLevelFunction(path) &&
       this.hasTCall(path) &&
@@ -220,6 +243,11 @@ export class Insertion {
   }
 
   private isAlreadyInjectedHook(path: NodePath<HookContextNode>): boolean {
+    // Program节点不会有useTranslation hook
+    if (t.isProgram(path.node)) {
+      return false
+    }
+
     const blockPath = path.get("body") as NodePath<t.BlockStatement>
     const firstStmt = blockPath.node.body[0]
 

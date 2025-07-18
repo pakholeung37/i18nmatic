@@ -7,10 +7,11 @@ import { initReactI18next } from "react-i18next"
 
 export { useTranslation, I18nextProvider, withTranslation } from "react-i18next"
 
-export const i18n = i18next.createInstance()
-export const t = i18n.t.bind(i18n) // 绑定 t 函数以便直接使用
+export const i18n =
+  ((window as any).Ti18n as typeof i18next) ?? i18next.createInstance()
 // @ts-ignore
-window.i18n = i18n // Expose for debugging
+window.Ti18n = i18n // Expose for debugging
+export const t = i18n.t.bind(i18n) // 绑定 t 函数以便直接使用
 export function initI18n(): void {
   // resources: Record<string, any>,
   // options?: DetectorOptions,
