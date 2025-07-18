@@ -1,4 +1,4 @@
-import { B, useTranslation } from "@terminus/t-console-framework"
+import { B, t } from "@terminus/t-console-framework"
 // 中文测试用集合
 
 // 1. 函数声明 + JSX 中直接使用中文

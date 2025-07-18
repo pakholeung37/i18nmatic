@@ -1,7 +1,7 @@
 import * as fs from "fs/promises"
 import * as parser from "@babel/parser"
 import * as t from "@babel/types"
-import { globSync } from "fs"
+import { globSync } from "glob"
 import { handleParseError } from "../common"
 
 interface File {

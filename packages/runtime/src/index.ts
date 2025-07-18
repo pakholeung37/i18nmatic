@@ -65,7 +65,6 @@ export function initI18n(): void {
           },
           {
             loadPath: (lng: string) => {
-              if (lng === "zh-CN") return undefined
               return `/locales/${lng}.json`
             },
           },
