@@ -99,7 +99,7 @@ export function isHook(path: NodePath<PreHookContextNode>): boolean {
   return /^use[A-Z0-9]/.test(functionName)
 }
 
-function getFunctionName(path: NodePath<PreHookContextNode>) {
+export function getFunctionName(path: NodePath<PreHookContextNode>) {
   let functionName: string | undefined
 
   // 1. 함수 노드 자체에 id가 있는 경우 (FunctionDeclaration, 이름이 있는 FunctionExpression)

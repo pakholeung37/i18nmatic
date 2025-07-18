@@ -1,10 +1,10 @@
-import { useTranslation, t } from "@terminus/t-console-framework"
+import { B, useTranslation } from "@terminus/t-console-framework"
 // 中文测试用集合
 
 // 1. 函数声明 + JSX 中直接使用中文
 function HelloComponent() {
   const { t } = useTranslation()
-  return <div>{t("你好2")}</div>
+  return <div>{t("你好")}</div>
 }
 
 // 2. 函数声明 + 变量赋值中文字符串字面量
@@ -75,18 +75,6 @@ function ComplexConditional({ isMorning, user }) {
       })}
     </div>
   )
-}
-
-// 10. 内部嵌套函数也有中文的情况
-//     (用于判断是否为顶级函数)
-const NestedFunction = () => {
-  const { t } = useTranslation()
-  // 不是顶级的内部函数
-  function inner() {
-    // 中文字符串字面量
-    return t("这是内部函数的中文")
-  }
-  return <div>{inner()}</div>
 }
 
 // 11. 完全没有中文的组件 (不应该被转换)

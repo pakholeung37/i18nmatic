@@ -1,4 +1,4 @@
-import { useTranslation } from "@terminus/t-console-framework"
+import { t } from "@terminus/t-console-framework"
 const ERROR_MESSAGE = t("请稍后再试")
 const review = {
   id: 1,

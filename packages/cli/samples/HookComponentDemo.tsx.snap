@@ -1,9 +1,10 @@
-import { t } from "@terminus/t-console-framework"
+import { useTranslation } from "@terminus/t-console-framework"
 // src/demo/HookComponentDemo.tsx
 import React from "react"
 
 // 自定义Hook示例
 export const useCustomHook = () => {
+  const { t } = useTranslation()
   return t("你好")
 }
 

@@ -19,9 +19,15 @@ export function transform(
 
   const isWrappedChanged = wrapper.wrap()
 
-  const insertion = new Insertion(hookContextNodes, ast, importModuleName, useHook, aggressive)
+  const insertion = new Insertion(
+    hookContextNodes,
+    ast,
+    importModuleName,
+    useHook,
+    aggressive,
+  )
 
-  const isInsertChanged = insertion.insert()
+  insertion.insert()
 
-  return { ast, isChanged: isWrappedChanged || isInsertChanged }
+  return { ast, isChanged: isWrappedChanged }
 }

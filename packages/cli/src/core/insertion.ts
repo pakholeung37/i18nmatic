@@ -2,6 +2,7 @@ import { NodePath } from "@babel/traverse"
 import { HookContextNode } from "./type"
 import * as t from "@babel/types"
 import { find, has } from "../common"
+import { isFunctionalComponent, isHook } from "./finder"
 
 export class Insertion {
   constructor(
@@ -16,15 +17,11 @@ export class Insertion {
     try {
       this.wrapFunctionsWithBlockStatement()
 
-      // 在激进模式下，useHook模式的处理需要特别小心
-      // 因为可能在任何地方都有t()调用，不仅仅是在React组件中
-      const isChanged = this.useHook && !this.aggressive
-        ? this.insertUseTranslationHook()
-        : false
+      // 如果useHook为true，需要插入useTranslation hook
+      // 在激进模式下，只在React组件和Hook中插入
+      this.insertUseTranslationHook()
 
       this.insertImportDeclartion()
-
-      return isChanged
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(`Failed to insert translations: ${error.message}`)
@@ -41,52 +38,47 @@ export class Insertion {
       throw new Error("Invalid file: Program node not found")
     }
 
-    // 在激进模式下，检查整个AST是否有t()调用
-    // 在普通模式下，只检查HookContextNode中是否有t()调用
-    const hasTCall = this.aggressive
-      ? this.hasTCall(programPath)
-      : this.paths.some(path => this.hasTCall(path))
+    // 检查是否需要导入
+    const [needsT, needsUseTranslation] = this.analyzeImportNeeds()
 
-    if (!hasTCall) {
+    if (!needsT && !needsUseTranslation) {
       return
     }
 
     // 查找现有的 import 语句
     const existingImport = this.findExistingImport(programPath)
 
-    if (this.useHook) {
-      // 使用 Hook 模式：导入 useTranslation
-      if (existingImport) {
-        // 如果已经存在该模块的 import，检查是否已经导入了 useTranslation
-        if (!this.hasIdentifierImport(existingImport, "useTranslation")) {
-          // 添加 useTranslation 到现有的 import 中
-          this.addIdentifierToExistingImport(existingImport, "useTranslation")
-        }
-      } else {
-        // 如果不存在该模块的 import，创建新的 import 语句
-        const importDeclaration = t.importDeclaration(
-          [
-            t.importSpecifier(
-              t.identifier("useTranslation"),
-              t.identifier("useTranslation"),
-            ),
-          ],
-          t.stringLiteral(this.importModuleName),
-        )
-        this.insertImportAtPosition(programPath, importDeclaration)
+    if (existingImport) {
+      // 根据需要添加导入
+      if (
+        needsUseTranslation &&
+        !this.hasIdentifierImport(existingImport, "useTranslation")
+      ) {
+        this.addIdentifierToExistingImport(existingImport, "useTranslation")
+      }
+      if (needsT && !this.hasIdentifierImport(existingImport, "t")) {
+        this.addIdentifierToExistingImport(existingImport, "t")
       }
     } else {
-      // 直接导入 t 模式
-      if (existingImport) {
-        // 如果已经存在该模块的 import，检查是否已经导入了 t
-        if (!this.hasIdentifierImport(existingImport, "t")) {
-          // 添加 t 到现有的 import 中
-          this.addIdentifierToExistingImport(existingImport, "t")
-        }
-      } else {
-        // 如果不存在该模块的 import，创建新的 import 语句
+      // 创建新的 import 语句
+      const specifiers: t.ImportSpecifier[] = []
+
+      if (needsUseTranslation) {
+        specifiers.push(
+          t.importSpecifier(
+            t.identifier("useTranslation"),
+            t.identifier("useTranslation"),
+          ),
+        )
+      }
+
+      if (needsT) {
+        specifiers.push(t.importSpecifier(t.identifier("t"), t.identifier("t")))
+      }
+
+      if (specifiers.length > 0) {
         const importDeclaration = t.importDeclaration(
-          [t.importSpecifier(t.identifier("t"), t.identifier("t"))],
+          specifiers,
           t.stringLiteral(this.importModuleName),
         )
         this.insertImportAtPosition(programPath, importDeclaration)
@@ -94,6 +86,54 @@ export class Insertion {
     }
   }
 
+  /**
+   * 分析需要导入什么
+   */
+  private analyzeImportNeeds(): [boolean, boolean] {
+    let needsT = false
+    let needsUseTranslation = false
+
+    if (this.aggressive && this.useHook) {
+      // 激进模式 + useHook模式：精确分析
+
+      // 检查React组件和Hook是否需要useTranslation
+      const reactComponentsAndHooks = this.paths.filter(
+        (path) => !t.isProgram(path.node) && this.isReactComponentOrHook(path),
+      )
+      needsUseTranslation = reactComponentsAndHooks.some((path) =>
+        this.hasTCall(path),
+      )
+
+      // 检查非组件/Hook以及全局作用域是否需要t
+      const nonReactFunctions = this.paths.filter(
+        (path) => !t.isProgram(path.node) && !this.isReactComponentOrHook(path),
+      )
+      const programPaths = this.paths.filter((path) => t.isProgram(path.node))
+
+      // 检查非React函数中的t()调用
+      const nonReactFunctionsNeedT = nonReactFunctions.some((path) =>
+        this.hasTCall(path),
+      )
+
+      // 检查全局作用域中的t()调用（排除函数内部的调用）
+      const globalScopeNeedT = programPaths.some((path) =>
+        this.hasGlobalTCall(path),
+      )
+
+      needsT = nonReactFunctionsNeedT || globalScopeNeedT
+    } else if (this.aggressive) {
+      // 只有激进模式：只需要t
+      needsT = this.paths.some((path) => this.hasTCall(path))
+    } else if (this.useHook) {
+      // 只有useHook模式：只需要useTranslation
+      needsUseTranslation = this.paths.some((path) => this.hasTCall(path))
+    } else {
+      // 普通模式：只需要t
+      needsT = this.paths.some((path) => this.hasTCall(path))
+    }
+
+    return [needsT, needsUseTranslation]
+  }
   private findExistingImport(
     programPath: NodePath<t.Program>,
   ): t.ImportDeclaration | null {
@@ -213,6 +253,11 @@ export class Insertion {
       return false
     }
 
+    // 检查是否是React组件或Hook
+    if (!this.isReactComponentOrHook(path)) {
+      return false
+    }
+
     return (
       this.isTopLevelFunction(path) &&
       this.hasTCall(path) &&
@@ -259,5 +304,50 @@ export class Insertion {
       t.isIdentifier(firstStmt.declarations[0].init.callee) &&
       firstStmt.declarations[0].init.callee.name === "useTranslation"
     )
+  }
+
+  /**
+   * 检查函数是否是React组件或Hook
+   */
+  private isReactComponentOrHook(path: NodePath<HookContextNode>): boolean {
+    // Program节点不是React组件或Hook
+    if (t.isProgram(path.node)) {
+      return false
+    }
+
+    return isFunctionalComponent(path) || isHook(path)
+  }
+
+  /**
+   * 检查全局作用域中是否有t()调用（不包括函数内部的调用）
+   */
+  private hasGlobalTCall(path: NodePath): boolean {
+    let found = false
+
+    path.traverse({
+      enter(p) {
+        // 如果遇到函数，跳过其内部
+        if (
+          t.isFunctionDeclaration(p.node) ||
+          t.isFunctionExpression(p.node) ||
+          t.isArrowFunctionExpression(p.node)
+        ) {
+          p.skip() // 跳过函数内部
+          return
+        }
+
+        // 检查是否是t()调用
+        if (
+          t.isCallExpression(p.node) &&
+          t.isIdentifier(p.node.callee) &&
+          p.node.callee.name === "t"
+        ) {
+          found = true
+          p.stop()
+        }
+      },
+    })
+
+    return found
   }
 }
