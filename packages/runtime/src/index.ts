@@ -43,6 +43,9 @@ export function initI18n(): void {
       },
 
       detection: {
+        order: ["cookie", "navigator"],
+        caches: ["cookie"],
+        cookieDomain: cookieDomain(),
         // detactor options
         lookupQuerystring: "lng",
         lookupCookie: "trantor_v2_lng",
@@ -61,7 +64,10 @@ export function initI18n(): void {
             expirationTime: 0,
           },
           {
-            loadPath: "/locales/{{lng}}.json",
+            loadPath: (lng: string) => {
+              if (lng === "zh-CN") return undefined
+              return `/locales/${lng}.json`
+            },
           },
         ],
       },
@@ -69,4 +75,16 @@ export function initI18n(): void {
     .then(() => {
       console.log("i18n initialized successfully")
     })
+}
+
+export const cookieDomain = () => {
+  const domain = window.location.hostname
+  if (tlds().some((tld) => domain.endsWith(tld))) {
+    return domain.split(".").slice(-3).join(".")
+  }
+  return domain.split(".").slice(-2).join(".")
+}
+
+export const tlds = () => {
+  return [".com.con", ".net.cn", ".org.cn", ".gov.cn", ".edu.cn"]
 }
