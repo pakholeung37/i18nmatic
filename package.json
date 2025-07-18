@@ -4,7 +4,8 @@
   "scripts": {
     "start": "pnpm --filter cli dev",
     "build": "pnpm --recursive build",
-    "publish": "pnpm --recursive publish",
+    "bump": "node scripts/bump.js",
+    "publish:lib": "pnpm publish -r --registry=https://registry.npm.terminus.io/ --no-git-checks",
     "test": "vitest",
     "clean-pkgs": "pnpm -r exec rm -rf dist .turbo .swc *.log node_modules",
     "clean": "pnpm clean-pkgs && rm -rf node_modules"

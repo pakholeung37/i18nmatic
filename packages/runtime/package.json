@@ -1,6 +1,6 @@
 {
-  "name": "@terminus/t-i18n-runtime",
-  "version": "0.2.0",
+  "name": "@terminus/t-i18n",
+  "version": "0.4.0",
   "description": "i18n runtime library for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,8 +13,7 @@
     "build": "tsc",
     "prebuild": "rm -rf dist",
     "prepublishOnly": "pnpm build",
-    "test": "vitest",
-    "publish": "pnpm publish --registry=https://registry.npm.terminus.io/ --no-git-checks"
+    "test": "vitest"
   },
   "keywords": [
     "i18n",
