@@ -30,8 +30,12 @@
   "author": "pakholeung",
   "license": "MIT",
   "dependencies": {
-    "react-i18next": "^15.0.0",
-    "i18next": "^25.0.0"
+    "i18next": "^25.3.0",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-localstorage-backend": "^4.2.0",
+    "i18next-chained-backend": "^4.2.0",
+    "i18next-http-backend": "^3.0.0",
+    "react-i18next": "^15.0.0"
   },
   "peerDependencies": {
     "react": "*"

@@ -1,176 +1,156 @@
-# i18nmatic
+# @terminus/t-i18n-cli
 
-**"The fastest way to implement internationalization"**
+> CLI tool for automating internationalization (i18n) code transformation and key extraction in React and Next.js projects.
 
-`i18nmatic` is a CLI tool that automates code transformation and translation key extraction, allowing you to quickly and efficiently implement internationalization (i18n) in React and Next.js projects. Quickly apply internationalization to validate your ideas and business in the global market!
+`@terminus/t-i18n-cli` is a command-line tool that automates the process of wrapping text in your code with translation functions and extracting the keys for internationalization. It helps you quickly and efficiently implement i18n in your React and Next.js projects, allowing you to validate your ideas and business in the global market faster.
 
 ## Why?
 
 To expand your business and seize global opportunities, **internationalization (i18n)** is no longer optional—it's essential.
 
-React and Next.js projects typically use libraries such as `react-i18next` or `next-i18next` to handle multilingual content. However, wrapping every text manually in `t()` functions and managing extracted translation keys in JSON files is tedious, repetitive, and resource-intensive, especially in large codebases.
+React and Next.js projects typically use libraries such as `react-i18next` or `next-i18next` to handle multilingual content. However, manually wrapping every piece of text in `t()` functions and managing the extracted translation keys in JSON files is tedious, repetitive, and resource-intensive, especially in large codebases.
 
-**i18nmatic** automates these repetitive tasks, enabling developers to focus on higher-level problems and empowering your business to quickly validate ideas in the global market.
+`@terminus/t-i18n-cli` automates these repetitive tasks, enabling developers to focus on higher-level problems and empowering your business to quickly validate ideas in the global market.
 
 ## 📺 Demo
 
-[![Watch the demo](https://github.com/user-attachments/assets/11c3a36b-fb36-4c19-b0f9-c85596269a2a/demo-thumbnail.gif)](https://github.com/user-attachments/assets/11c3a36b-fb36-4c19-b0f9-c85596269a2a)
-
-See how quickly `i18nmatic` transforms your code and extracts translation keys.
+See how quickly `@terminus/t-i18n-cli` transforms your code and extracts translation keys.
 
 ## Key Features
 
-- **Automatic code transformation**: Detects all text requiring internationalization in JSX, string literals, template literals, etc. Automatically extracts translation keys based on the selected language, wraps them with `t()`, and injects the necessary imports.
-- **Translation key extraction**: Extracts all text requiring translation—even if not yet wrapped with t()—and outputs keys with source file paths into JSON, enabling efficient management and traceability.
-- **Multilingual support**: Supports major languages including Korean, English, Japanese, and Chinese.
-- **React/Next.js compatibility**: Fully compatible with `react-i18next` and `next-i18next`.
+- **Automatic Code Transformation**: Detects text in JSX, string literals, and template literals that needs to be internationalized. It automatically wraps them with a `t()` function and injects the necessary imports.
+- **Translation Key Extraction**: Extracts all text requiring translation—even if not yet wrapped with `t()`—and outputs keys with source file paths into a JSON file, enabling efficient management and traceability.
+- **Multilingual Support**: Supports multiple languages for key extraction, including English, Japanese, Chinese, and Korean.
+- **React/Next.js Compatibility**: Fully compatible with `react-i18next` and `next-i18next`.
 
 ## Installation
 
 ```bash
-npm install -D i18nmatic
+npm install -D @terminus/t-i18n-cli
 # or
-yarn add -D i18nmatic
+yarn add -D @terminus/t-i18n-cli
 ```
 
 ## Usage
 
 ### 1. Create a configuration file
 
-**Create an `auto-i18n.config.json` file in your project's root directory** ([Click here to see the default configuration options](https://github.com/seonghunYang/i18nmatic?tab=readme-ov-file#-configuration-auto-i18nconfigjson)):
+Create an `auto-i18n.config.json` file in your project's root directory.
 
 ```json
 {
-  "runType": "next", // Choose between "next" or "react"
-  // - "next": Use for Next.js projects
-  // - "react": Use for React projects
-
-  "entry": "src", // Root directory of your source code
-  // - Example: "src" targets all files in the src directory
-
-  "locales": ["en", "ja-JP"], // Array of locale codes to support
-  // - Example: ["en", "ja-JP"] supports English and Japanese
-  // - JSON files are generated separately per language
-
-  "outputDir": "public/locales", // Directory to store generated translation JSON files
-  // - Example: "public/locales" is compatible with Next.js static paths
-
-  "enablePrettier": true, // Whether to format generated code and JSON files using Prettier
-  // - true: Use Prettier formatting
-  // - false: Save original formatting
-
-  "outputFileName": "common.json", // Name of the generated translation JSON file
-  // - Example: "common.json" is consistent across languages
-
-  "keyLanguage": "ko" // Base language to extract translation keys
-  // - Example: "ko" extracts Korean text as translation keys
-  // - Supported values: "ko", "en", "ja", "zh", etc.
+  "runType": "next",
+  "entry": "src",
+  "outputDir": "public/locales",
+  "enablePrettier": true,
+  "outputFileName": "common.json",
+  "keyLanguage": "en"
 }
 ```
 
-### 2. Run CLI
+_(See below for all configuration options)_
 
-Execute the following command to transform code and extract translation keys:
+### 2. Run the CLI
+
+Execute the following command to transform your code and extract translation keys:
 
 ```bash
-npx auto-i18n
+npx t-i18n-cli
 ```
 
-Or add a script to `package.json`:
+Or add a script to your `package.json`:
 
 ```json
 "scripts": {
-  "auto-i18n": "auto-i18n"
+  "i18n": "t-i18n-cli"
 }
 ```
 
 Then run:
 
 ```bash
-npm run auto-i18n
+pnpm run i18n
 # or
-yarn auto-i18n
+yarn i18n
 ```
 
-### 3. Transformation results
+### 3. Transformation Results
 
-### Before:
+**Before:**
 
 ```jsx
 function Greeting() {
-  return <div>안녕하세요</div>
+  return <div>Hello</div>
 }
 ```
 
-### After:
+**After:**
 
 ```jsx
 import { useTranslation } from "next-i18next"
 
 function Greeting() {
   const { t } = useTranslation()
-  return <div>{t("안녕하세요")}</div>
+  return <div>{t("Hello")}</div>
 }
 ```
 
-### Extracted JSON keys (`public/locales/en/common.json`):
+**Extracted JSON (`public/locales/ja-JP/common.json`):**
 
 ```json
 {
-  "안녕하세요": "안녕하세요"
+  "Hello": "Hello"
 }
 ```
 
 ## Examples
 
-### **Input Code (Before Transformation)**
+### Input Code (Before)
 
 ```jsx
-// 템플릿 리터럴
+// Template Literals
 function TemplateLiteralComponent({ name }) {
-  return <p>{`${name}님 안녕하세요`}</p>
+  return <p>{`Hello, ${name}`}</p>
 }
 
-// JSX 속성
+// JSX Attributes
 function JSXAttributeComponent() {
-  return <input type="text" placeholder="안녕하세요 여기에 입력해 주세요" />
+  return <input type="text" placeholder="Please enter text here" />
 }
 ```
 
-### **Transformed Code (After Transformation)**
+### Transformed Code (After)
 
 ```jsx
 import { useTranslation } from "next-i18next"
 
 function TemplateLiteralComponent({ name }) {
   const { t } = useTranslation()
-  return <p>{t("{{name}}님 안녕하세요", { name })}</p>
+  return <p>{t("Hello, {{name}}", { name })}</p>
 }
 
 function JSXAttributeComponent() {
   const { t } = useTranslation()
-  return (
-    <input type="text" placeholder={t("안녕하세요 여기에 입력해 주세요")} />
-  )
+  return <input type="text" placeholder={t("Please enter text here")} />
 }
 ```
 
-### **Extracted JSON File (`public/locales/{locale}/common.json`)**
+### Extracted JSON File (`public/locales/{locale}/common.json`)
 
 ```json
 {
-  "{{name}}님 안녕하세요": "{{name}}님 안녕하세요",
-  "안녕하세요 여기에 입력해 주세요": "안녕하세요 여기에 입력해 주세요"
+  "Hello, {{name}}": "Hello, {{name}}",
+  "Please enter text here": "Please enter text here"
 }
 ```
 
-## When Automatic Wrapping is Difficult
+## Handling Complex Cases
 
-In certain scenarios, as shown below, it's difficult for the tool to automatically determine whether the attributes should be wrapped with the `t()` function, due to the lack of explicit context within the code itself.
+In some scenarios, it can be difficult for the tool to automatically determine if a string should be wrapped with the `t()` function, especially for text inside complex data structures.
 
-However, internationalization is still essential in these cases. To handle such scenarios, **i18nmatic** detects these texts, extracts them into JSON files, and includes a comment with the original source file path. This makes it easy for developers to manually locate and wrap the keys with `t()`.
+For these cases, `@terminus/t-i18n-cli` will still extract the text into your JSON files and add a comment indicating the source file path. This allows developers to easily find the text and manually apply the `t()` function where needed.
 
-### **Example Input Code**
+### Example Input Code
 
 ```jsx
 // src/components/example.tsx
@@ -178,18 +158,13 @@ However, internationalization is still essential in these cases. To handle such 
 const ITEMS = [
   {
     id: 1,
-    title: "안녕하세요",
-    description: "반갑습니다.",
+    title: "Hello",
+    description: "Welcome.",
   },
   {
     id: 2,
-    title: "잘부탁드립니다.",
-    description: "고맙습니다.",
-  },
-  {
-    id: 3,
-    title: "미안합니다.",
-    description: "감사합니다.",
+    title: "Pleased to meet you.",
+    description: "Thank you.",
   },
 ]
 
@@ -207,66 +182,55 @@ function Example() {
 }
 ```
 
-### **Extracted JSON File Example (`public/locales/{locale}/common.json`)**
+### Extracted JSON File (`public/locales/{locale}/common.json`)
 
 ```json
 {
   ...
-
   "__comment_1": "src/components/example.tsx/ITEMS",
-  "반갑습니다.": "반갑습니다.",
-  "고맙습니다.": "고맙습니다.",
-  "잘부탁드립니다.": "잘부탁드립니다.",
-  "감사합니다.": "감사합니다.",
-  "미안합니다.": "미안합니다.",
-
+  "Welcome.": "Welcome.",
+  "Thank you.": "Thank you.",
+  "Pleased to meet you.": "Pleased to meet you.",
   ...
 }
 ```
 
 ## Supported Patterns
 
-- **JSX text**: `<div>안녕하세요</div>` → `<div>{t("안녕하세요")}</div>`
-- **String literals**: `const greeting = "안녕하세요";` → `const greeting = t("안녕하세요");`
-- **Template literals**: `const message = `${name}님 안녕하세요`;` → `const message = t("{{name}}님 안녕하세요", { name });`
-- **JSX attributes**: `<input placeholder="안녕하세요" />` → `<input placeholder={t("안녕하세요")} />`
-- **Conditional expressions**: `isKorean ? "안녕하세요" : "Hello"` → `isKorean ? t("안녕하세요") : t("Hello")`
+- **JSX text**: `<div>Hello</div>` → `<div>{t("Hello")}</div>`
+- **String literals**: `const greeting = "Hello";` → `const greeting = t("Hello");`
+- **Template literals**: ``const message = `${name}, welcome`;`` → `const message = t("{{name}}, welcome", { name });`
+- **JSX attributes**: `<input placeholder="Hello" />` → `<input placeholder={t("Hello")} />`
+- **Conditional expressions**: `isMorning ? "Good morning" : "Good evening"` → `isMorning ? t("Good morning") : t("Good evening")`
 
-### 📘 Configuration (`auto-i18n.config.json`)
+## Configuration (`auto-i18n.config.json`)
 
-| Option           | Type                                 | Default            | Description                                       |
-| ---------------- | ------------------------------------ | ------------------ | ------------------------------------------------- |
-| `runType`        | `"next"` \| `"react"`                | `"next"`           | Framework type used in your project.              |
-| `entry`          | `string`                             | `"src"`            | Root directory for your source code.              |
-| `locales`        | `string[]`                           | `["ja_JP"]`        | Supported locale codes (e.g., `["en", "ja-JP"]`). |
-| `outputDir`      | `string`                             | `"public/locales"` | Directory for generated translation JSON files.   |
-| `enablePrettier` | `boolean`                            | `true`             | Format output using Prettier.                     |
-| `outputFileName` | `string`                             | `"common.json"`    | Filename for generated translation files.         |
-| `keyLanguage`    | `"ko"` \| `"en"` \| `"ja"` \| `"zh"` | `"ko"`             | Base language for extracting translation keys.    |
-
-## Testing
-
-This project uses Jest for testing. To run tests:
-
-```bash
-npm test
-```
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `importModuleName` | `string` | `"@terminus/t-i18n"` | The module name to import translation functions from. |
+| `useHook` | `boolean` | `false` | Whether to use `useTranslation` hook or just the `t` function. |
+| `keyLanguage` | `"zh"` \| `"en"` \| `"ko"` \| `"ja"` | `"zh"` | The base language for extracting translation keys. |
+| `outputDir` | `string` | `"public/locales"` | The directory for generated translation JSON files. |
+| `include` | `string` \| `string[]` | `"./**/*"` | Glob patterns for files to include in the transformation. |
+| `exclude` | `string` \| `string[]` | `["node_modules", "dist", "build", "test"]` | Glob patterns for files to exclude. |
+| `ext` | `string[]` | `["js", "jsx", "ts", "tsx"]` | File extensions to process. |
+| `enablePrettier` | `boolean` | `true` | Format the output code using Prettier. |
+| `outputFileName` | `string` | `"en-US.json"` | The filename for the generated translation file. |
+| `dry` | `boolean` | `false` | If true, performs a dry run without writing changes to files. |
+| `outputJsonMode` | `"create"` \| `"merge"` | `"create"` | `"create"` to overwrite existing JSON, `"merge"` to merge with it. |
+| `comment` | `boolean` | `false` | Whether to add comments to the generated JSON file for complex cases. |
+| `defaultTranslation`| `string` | `""` | Default value for new keys in the translation file. |
 
 ## Contributing
 
-Contributions are always welcome! Please follow these steps:
+Contributions are always welcome! Please feel free to create a Pull Request.
 
-1. Fork this repository.
-2. Create a new branch: `git checkout -b feature/my-feature`
-3. Ensure all existing tests pass, and add relevant tests for your changes.
-4. Commit your changes: `git commit -m "Add my feature"`
-5. Push to your branch: `git push origin feature/my-feature`
-6. Create a Pull Request.
+1.  Fork the repository.
+2.  Create your feature branch (`git checkout -b feature/my-feature`).
+3.  Commit your changes (`git commit -m 'Add some feature'`).
+4.  Push to the branch (`git push origin feature/my-feature`).
+5.  Open a Pull Request.
 
 ## License
 
 This project is licensed under the MIT License.
-
-## Contact
-
-If you have questions or issues, please open a GitHub issue.

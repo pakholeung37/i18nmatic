@@ -45,7 +45,7 @@ export const defaultOptions: Options = {
   dry: false,
   outputDir: "public/locales",
   enablePrettier: true,
-  outputFileName: "en_US.json",
+  outputFileName: "en-US.json",
   outputJsonMode: "create",
   comment: false,
   defaultTranslation: "",
