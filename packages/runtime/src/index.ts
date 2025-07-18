@@ -76,7 +76,7 @@ export function initI18n(): void {
     })
 }
 
-export const cookieDomain = () => {
+const cookieDomain = () => {
   const domain = window.location.hostname
   if (tlds().some((tld) => domain.endsWith(tld))) {
     return domain.split(".").slice(-3).join(".")
@@ -84,6 +84,6 @@ export const cookieDomain = () => {
   return domain.split(".").slice(-2).join(".")
 }
 
-export const tlds = () => {
+const tlds = () => {
   return [".com.con", ".net.cn", ".org.cn", ".gov.cn", ".edu.cn"]
 }

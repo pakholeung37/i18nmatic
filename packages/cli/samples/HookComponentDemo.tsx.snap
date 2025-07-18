@@ -4,7 +4,6 @@ import React from "react"
 
 // 自定义Hook示例
 export const useCustomHook = () => {
-  const { t } = useTranslation()
   return t("你好")
 }
 

@@ -19,7 +19,9 @@ export class Insertion {
 
       // 如果useHook为true，需要插入useTranslation hook
       // 在激进模式下，只在React组件和Hook中插入
-      this.insertUseTranslationHook()
+      if (this.useHook) {
+        this.insertUseTranslationHook()
+      }
 
       this.insertImportDeclartion()
     } catch (error: unknown) {

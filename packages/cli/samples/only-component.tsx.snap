@@ -3,13 +3,11 @@ import { B, t } from "@terminus/t-console-framework"
 
 // 1. 函数声明 + JSX 中直接使用中文
 function HelloComponent() {
-  const { t } = useTranslation()
   return <div>{t("你好")}</div>
 }
 
 // 2. 函数声明 + 变量赋值中文字符串字面量
 function HelloWorldComponent() {
-  const { t } = useTranslation()
   const text = t("你好")
   return <div>{text}</div>
 }
@@ -17,25 +15,21 @@ function HelloWorldComponent() {
 // 3. 隐式返回箭头函数 + JSX 中的中文
 //    -> 没有块语句，可以测试隐式返回
 const AnotherComponent = () => {
-  const { t } = useTranslation()
   return <span>{t("你好，这是一个span")}</span>
 }
 
 // 4. 显式返回箭头函数 + JSXText/Attribute 中文
 const AnotherComponent2 = () => {
-  const { t } = useTranslation()
   return <input type="text" placeholder={t("你好，请在这里输入")} />
 }
 
 // 5. 函数声明 + 条件表达式(三元运算符) 内部中文
 function ConditionalComponent({ isKorean }) {
-  const { t } = useTranslation()
   return <div>{isKorean ? t("你好") : "Hello"}</div>
 }
 
 // 6. 模板字面量 + 中文
 function TemplateLiteralComponent({ name }) {
-  const { t } = useTranslation()
   // 例如: `${name}，你好`
   //    `${user.name}，我们${time}见面吧` 这样的模式测试
   return (
@@ -49,7 +43,6 @@ function TemplateLiteralComponent({ name }) {
 
 // 7. 箭头函数 + 多个中文字符串字面量
 const MultipleStringLiterals = () => {
-  const { t } = useTranslation()
   const greeting = t("你好")
   const message = t("很高兴见到你")
   return <p>{greeting + ", " + message}</p>
@@ -57,13 +50,11 @@ const MultipleStringLiterals = () => {
 
 // 8. 函数表达式 + JSXText 中文
 const ExpressionComponent = function () {
-  const { t } = useTranslation()
   return <p>{t("表达式组件：你好")}</p>
 }
 
 // 9. 函数声明 + 多个中文混合的条件表达式 + 模板字面量
 function ComplexConditional({ isMorning, user }) {
-  const { t } = useTranslation()
   // 三元运算符 + 模板字面量
   // 中文 / 英语混合
   const timeStr = isMorning ? t("上午") : t("下午")
@@ -84,7 +75,6 @@ function NoKoreanComponent() {
 
 // 12. 隐式返回箭头函数 + JSXText + 三元运算符同时
 const ComplexArrow = ({ isHello }) => {
-  const { t } = useTranslation()
   return isHello ? (
     <div>{t("你好 - 三元运算符")}</div>
   ) : (
@@ -94,7 +84,6 @@ const ComplexArrow = ({ isHello }) => {
 
 // 13. 函数声明 + JSX Attribute 2个
 function DoubleAttributeComponent() {
-  const { t } = useTranslation()
   return (
     <section title={t("你好标题")} aria-label={t("中文标签")}>
       <p>{t("中文段落")}</p>
@@ -105,7 +94,6 @@ function DoubleAttributeComponent() {
 // 14. 箭头函数 + 复合模板字面量 (表达式、中文、英语混合)
 //    例如) `${user.name}，今天是 ${date}。Have a good day!`
 const MixedTemplate = ({ user, date }) => {
-  const { t } = useTranslation()
   return (
     <div>
       {t("{{user.name}}，今天是 {{date}}。Have a good day!", {
@@ -120,7 +108,6 @@ const MixedTemplate = ({ user, date }) => {
 //    -> 实际工作中类型可能混合的情况 (非常罕见)
 //    -> 在这里写出来也可以测试TSType跳过逻辑
 function TypeAnnotatedTemplate<T>(value: T) {
-  const { t } = useTranslation()
   // 例如: `${value as string} - 中文`
   return (
     <div>

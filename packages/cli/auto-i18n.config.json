@@ -10,5 +10,5 @@
   "outputFileName": "en-US.json",
   "keyLanguage": "zh",
   "outputJsonMode": "create",
-  "aggressive": false
+  "aggressive": true
 }

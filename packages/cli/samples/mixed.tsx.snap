@@ -3,22 +3,21 @@ import { B, t } from "@terminus/t-console-framework"
 
 // 1. 函数声明 + JSX 中直接使用中文
 function HelloComponent() {
-  const { t } = useTranslation()
   return <div>{t("你好HelloComponent")}</div>
 }
-const smaple1 = "你好Sample1"
-const ERROR_MESSAGE = "请稍后再试"
+const smaple1 = t("你好Sample1")
+const ERROR_MESSAGE = t("请稍后再试")
 const review = {
   id: 1,
-  name: "测试",
+  name: t("测试"),
 }
 const reviews = [
   {
     id: 1,
-    name: "张先生",
+    name: t("张先生"),
   },
   {
     id: 2,
-    name: "李女士",
+    name: t("李女士"),
   },
 ]
