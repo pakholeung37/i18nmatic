@@ -77,20 +77,20 @@ function unwrapTSAsExpression(node: t.Expression): t.Expression {
   return node
 }
 export function handleParseError(error: unknown, filePath: string) {
-  console.error(`❌ 파싱 오류 발생: ${filePath}`)
+  console.error(`Parse Error: ${filePath}`)
 
-  // Babel 파싱 에러 구조
   // error.loc?.line, error.loc?.column, error.message
   if (error && typeof error === "object") {
     const e = error as any
     if (e.loc) {
       console.error(
-        `  위치: line ${e.loc.line}, column ${e.loc.column} - ${e.message}`,
+        `  loc: line ${e.loc.line}, column ${e.loc.column} - ${e.message}`,
       )
     } else {
-      console.error(`  메시지: ${e.message || e}`)
+      console.error(`error: ${e.message || e}`, e)
     }
   } else {
-    console.error(`  메시지: ${String(error)}`)
+    console.error(`error: ${String(error)}`)
   }
+  throw error
 }

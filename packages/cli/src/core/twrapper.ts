@@ -192,9 +192,18 @@ export class TWrapper {
       return true
     }
 
-    // 跳过export声明中的字符串
-    if (path.findParent((p) => t.isExportNamedDeclaration(p.node) || t.isExportAllDeclaration(p.node))) {
-      return true
+    // 跳过export声明中的模块标识符，但不跳过export的变量值
+    const exportParent = path.findParent((p) => t.isExportNamedDeclaration(p.node) || t.isExportAllDeclaration(p.node))
+    if (exportParent) {
+      // 如果是 export { name } from "module" 这种形式，跳过 "module" 字符串
+      if (t.isExportNamedDeclaration(exportParent.node) && exportParent.node.source === path.node) {
+        return true
+      }
+      // 如果是 export * from "module" 这种形式，跳过 "module" 字符串
+      if (t.isExportAllDeclaration(exportParent.node) && exportParent.node.source === path.node) {
+        return true
+      }
+      // 对于 export const name = "value" 这种形式，不跳过 "value" 字符串
     }
 
     // 跳过require调用中的字符串
@@ -211,8 +220,8 @@ export class TWrapper {
       return true
     }
 
-    // 跳过TypeScript类型断言等
-    if (path.findParent((p) => t.isTSTypeAnnotation(p.node) || t.isTSAsExpression(p.node))) {
+    // 跳过TypeScript类型注解，但不跳过类型断言中的值
+    if (path.findParent((p) => t.isTSTypeAnnotation(p.node))) {
       return true
     }
 

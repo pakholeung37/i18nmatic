@@ -90,9 +90,10 @@ export class Loader {
       }
     }
     let result = [...new Set(allPaths)]
+    let realExcludedCount = 0
     // 应用排除模式
-    const excludedPaths = new Set<string>()
     if (excludePatterns.length > 0 && excludePatterns[0] !== "") {
+      const excludedPaths = new Set<string>()
       for (const excludePattern of excludePatterns) {
         if (excludePattern) {
           const excluded = globSync(excludePattern)
@@ -104,6 +105,7 @@ export class Loader {
       result = result.filter((path) => {
         // Check if the path itself is excluded
         if (excludedPaths.has(path)) {
+          realExcludedCount++
           return false
         }
 
@@ -111,6 +113,7 @@ export class Loader {
         for (const excludePattern of excludePatterns) {
           if (excludePattern && path.startsWith(excludePattern)) {
             excludedPaths.add(path)
+            realExcludedCount
             return false
           }
         }
@@ -118,10 +121,10 @@ export class Loader {
         return true
       })
     }
-
     console.log(
-      `Found ${result.length} files (${excludedPaths.size} excluded) matching patterns: ${includePatterns.join(", ")}; excluding: ${excludePatterns.join(", ")}`,
+      `Found ${result.length} files (${realExcludedCount} excluded) matching patterns: ${includePatterns.join(", ")}; excluding: ${excludePatterns.join(", ")}`,
     )
+
     // 去重并返回
     return result
   }
