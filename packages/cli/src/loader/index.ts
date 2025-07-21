@@ -91,9 +91,8 @@ export class Loader {
     }
     let result = [...new Set(allPaths)]
     // 应用排除模式
+    const excludedPaths = new Set<string>()
     if (excludePatterns.length > 0 && excludePatterns[0] !== "") {
-      const excludedPaths = new Set<string>()
-
       for (const excludePattern of excludePatterns) {
         if (excludePattern) {
           const excluded = globSync(excludePattern)
@@ -102,11 +101,26 @@ export class Loader {
       }
 
       // 过滤掉被排除的文件
-      result = result.filter((path) => !excludedPaths.has(path))
+      result = result.filter((path) => {
+        // Check if the path itself is excluded
+        if (excludedPaths.has(path)) {
+          return false
+        }
+
+        // Check if any parent directory of the path matches excluded patterns
+        for (const excludePattern of excludePatterns) {
+          if (excludePattern && path.startsWith(excludePattern)) {
+            excludedPaths.add(path)
+            return false
+          }
+        }
+
+        return true
+      })
     }
 
     console.log(
-      `Found ${result.length} files matching patterns: ${includePatterns.join(", ")}`,
+      `Found ${result.length} files (${excludedPaths.size} excluded) matching patterns: ${includePatterns.join(", ")}; excluding: ${excludePatterns.join(", ")}`,
     )
     // 去重并返回
     return result

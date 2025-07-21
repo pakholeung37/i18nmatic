@@ -8,4 +8,4 @@ export const i18n: I18n =
 window.Ti18n = i18n // Expose for debugging
 
 // 绑定 t 函数以便直接使用ng
-export const t: I18n = i18n.t.bind(i18n)
+export const t: I18n['t'] = i18n.t.bind(i18n)

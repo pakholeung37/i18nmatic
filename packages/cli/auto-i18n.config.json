@@ -3,6 +3,7 @@
   "useHook": false,
   "defaultTranslation": "",
   "include": ["samples"],
+  "exclude": ["**/exclude/**"],
   "ext": ["js", "jsx", "ts", "tsx"],
   "dry": true,
   "outputDir": "public/locales",
