@@ -7,6 +7,7 @@
     "outDir": "dist",
     "types": ["node", "vitest"],
     "module": "esnext",
+    "declaration": true,
     "moduleResolution": "bundler",
     "esModuleInterop": true
   }
