@@ -1,0 +1,5 @@
+import { t } from "@terminus/t-console-framework"
+export const DeepConst = {
+  name: t("步骤1"),
+  key: nanoid(),
+} as any
