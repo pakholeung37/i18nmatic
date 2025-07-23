@@ -1,5 +1,5 @@
 {
-  "name": "i18n-monorepo",
+  "name": "t-i18n-monorepo",
   "private": true,
   "scripts": {
     "start": "pnpm --filter cli dev",
